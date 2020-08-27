@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notes/ui/NotePadHome.dart';
+import 'package:notes/ui/main_view.dart';
 import 'package:notes/ui/SplashScreen.dart';
 
 void main() => runApp(MyApp());
@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Note Pad',
+      title: 'NotePad',
       theme: ThemeData(
         fontFamily: 'Raleway-Medium',
         primarySwatch: Colors.blue,
