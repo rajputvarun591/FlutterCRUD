@@ -4,8 +4,8 @@ import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/blocs/notes/notes_bloc.dart';
-import 'package:notes/database_helper/database_helper.dart';
 import 'package:notes/database_tables_models/notes.dart';
+import 'package:notes/models/order.dart';
 
 class NoteDetailView extends StatefulWidget {
   final Notes notes;
@@ -20,14 +20,13 @@ class NoteDetailView extends StatefulWidget {
 
 class _NoteDetailViewState extends State<NoteDetailView> {
 
-  DatabaseHelper _databaseHelper = DatabaseHelper();
   bool _isDeleting;
   bool _isEditing;
-  final _noteDetailScaffoldKey = GlobalKey<ScaffoldState>();
+  bool _hasText;
 
   Notes _note;
 
-  bool _hasText;
+  int _index;
 
   FocusNode _focusNode;
 
@@ -40,6 +39,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
     _isDeleting = false;
     _isEditing= false;
     _hasText = false;
+    _index = widget.index;
     _note = widget.notes;
     _focusNode = FocusNode();
     _tEController = TextEditingController(text: _note.content);
@@ -48,10 +48,33 @@ class _NoteDetailViewState extends State<NoteDetailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _noteDetailScaffoldKey,
       appBar: AppBar(
         title: Hero(tag: widget.index, child: Text(_note.title)),
         backgroundColor: widget.color,
+        actions: [
+          IconButton(icon: Icon(Icons.info_outline), onPressed: (){
+            showDialog(
+                context: context,
+              builder: (context){
+                  return SimpleDialog(
+                    title: Text("Details"),
+                    contentPadding: EdgeInsets.all(10.00),
+                    children: [
+                      Container(padding: EdgeInsets.only(left: 15.00), child: Text("Date Created", style: TextStyle(fontSize: 18.00))),
+                      Container(padding: EdgeInsets.only(left: 20.00), child: Text("${widget.notes.dateTime}", style: TextStyle(fontSize: 15.00, color: Colors.blueGrey))),
+                      SizedBox(height: 10.00),
+                      Container(padding: EdgeInsets.only(left: 15.00), child: Text("Date Modified", style: TextStyle(fontSize: 18.00))),
+                      Container(padding: EdgeInsets.only(left: 20.00), child: Text("${widget.notes.dateModified}", style: TextStyle(fontSize: 15.00, color: Colors.blueGrey))),
+                      SizedBox(height: 10.00),
+                      Container(padding: EdgeInsets.only(left: 15.00), child: Text("Total Chars", style: TextStyle(fontSize: 18.00))),
+                      Container(padding: EdgeInsets.only(left: 20.00), child: Text("${widget.notes.content.length}", style: TextStyle(fontSize: 15.00, color: Colors.blueGrey))),
+                      SizedBox(height: 10.00),
+                    ],
+                  );
+              }
+            );
+          })
+        ],
       ),
       body: Stack(
         children: [
@@ -69,11 +92,11 @@ class _NoteDetailViewState extends State<NoteDetailView> {
                       children: [
                         Container(
                             padding: EdgeInsets.only(left: 10.00, bottom: 10.00),
-                            child: Text("${state.notes[widget.index].dateTime}", style: TextStyle(fontSize: 18.00, color: Colors.blueGrey))),
+                            child: Text("${state.notes[_index].dateTime}", style: TextStyle(fontSize: 18.00, color: Colors.blueGrey))),
                         InkWell(
                           child: Container(
                               padding: EdgeInsets.all(10.00),
-                              child: Text("${state.notes[widget.index].content}", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey))),
+                              child: Text("${state.notes[_index].content}", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey))),
                           onTap: () {
                             setState(() {
                               _isEditing = true;
@@ -87,7 +110,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
                 else if (state is NotesLoading){
                   return Container(alignment: Alignment.center, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue)));
                 }
-                else if (state is NotesLoadFailure) {
+                else if (state is ZeroNotesFound) {
                   return Container(alignment: Alignment.center, child: Text("Something went wrong please Try again"));
                 }
                 else {
@@ -119,16 +142,15 @@ class _NoteDetailViewState extends State<NoteDetailView> {
               textCapitalization: TextCapitalization.sentences,
               maxLines: null,
               onSubmitted: (value) async{
-                final bloc = BlocProvider.of<NotesBloc>(context);
                 if(value.isNotEmpty) {
                   Notes notes = Notes.update(
                     _note.id,
                     "${value.split(" ")[0]} ${value.split(" ")[1]}",
                     value,
-                    DateFormat("dd MMM hh:mm:a").format(DateTime.now()),
+                    DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
                   );
-                  bloc.add(UpdateNote(notes: notes));
-                  bloc.close();
+                  BlocProvider.of<NotesBloc>(context).add(UpdateNote(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
+                  _index = 0;
                 }
               },
               onChanged: (value) {
@@ -170,11 +192,8 @@ class _NoteDetailViewState extends State<NoteDetailView> {
             actions: [
               FlatButton(onPressed: (){Navigator.of(context).pop();}, child: Text("Cancel")),
               FlatButton(onPressed: () async{
-                  setState(() {
-                    _isDeleting = true;
-                  });
                   Navigator.of(context).pop();
-                  await deleteNote(context, _note.id);
+                  await deleteNote(context, _note);
                 }, child: Text("Delete")),
             ],
           );
@@ -182,36 +201,14 @@ class _NoteDetailViewState extends State<NoteDetailView> {
     );
   }
 
-  Future<int> deleteNote(BuildContext context, int id) async{
-    int response = await _databaseHelper.deleteNote(id);
-    if(response != 0 ) {
-      Navigator.of(context).pop(true);
-      return response;
-    } else {
-      setState(() {
-        _isDeleting = false;
-      });
-      _noteDetailScaffoldKey.currentState.showSnackBar(SnackBar(
-        backgroundColor: Colors.red,
-        content: Container(child: Text("Deletion Failed")),
-      ));
-      return 0;
-    }
+  Future<int> deleteNote(BuildContext context, Notes note) async{
+      BlocProvider.of<NotesBloc>(context).add(DeleteNote(notes: note, columnName: Notes.columnDateModified, order: Order.descending));
+      Navigator.of(context).pop();
+      return 1;
   }
 
-  Future<int> updateNote(String value) async{
-    Notes notes = Notes.update(
-        _note.id,
-        "${value.split(" ")[0]} ${value.split(" ")[1]}",
-        value,
-        DateFormat("dd MMM hh:mm:a").format(DateTime.now())
-    );
-    int response = await _databaseHelper.updateNotes(notes);
-    Future.delayed(Duration(seconds: 1), () async{
-      _note = await _databaseHelper.getUpdatedNote(_note.id);
-      setState(() {
-        _isEditing = false;
-      });
-    });
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

@@ -29,17 +29,16 @@ class NotesLoaded extends NotesState{
   List<Object> get props => [notes];
 }
 
-/*class SingleNoteLoaded extends NotesState{
-  final Notes note;
-  SingleNoteLoaded({@required this.note});
-
-  @override
-  List<Object> get props => [note];
-}*/
-
-class NotesLoadFailure extends NotesState{
+class ZeroNotesFound extends NotesState{
   final String message;
-  NotesLoadFailure({@required this.message});
+  ZeroNotesFound({@required this.message});
+
+  List<Object> get props => [message];
+}
+
+class Failure extends NotesState{
+  final String message;
+  Failure({@required this.message});
 
   List<Object> get props => [message];
 }

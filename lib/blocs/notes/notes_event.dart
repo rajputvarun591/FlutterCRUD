@@ -11,7 +11,9 @@ abstract class NotesEvent extends Equatable {
 
 class ShowNotes extends NotesEvent{
   final List<Notes> notes;
-  ShowNotes({@required this.notes});
+  final String columnName;
+  final String order;
+  ShowNotes({@required this.notes, @required this.columnName, @required this.order});
 
   @override
   List<Object> get props => [notes];
@@ -19,32 +21,45 @@ class ShowNotes extends NotesEvent{
 
 class AddNote extends NotesEvent{
   final Notes notes;
+  final String columnName;
+  final String order;
 
-  AddNote({@required this.notes});
+  AddNote({@required this.notes, @required this.columnName, @required this.order});
 
   @override
   List<Object> get props => [notes];
 }
 
 class DeleteNote extends NotesEvent{
+  final Notes notes;
+  final String columnName;
+  final String order;
+
+  DeleteNote({@required this.notes, @required this.columnName, @required this.order});
+
+  @override
+  List<Object> get props => [notes];
 
 }
 
 class UpdateNote extends NotesEvent{
   final Notes notes;
+  final String columnName;
+  final String order;
 
-  UpdateNote({@required this.notes});
+  UpdateNote({@required this.notes, @required this.columnName, @required this.order});
 
   @override
   List<Object> get props => [notes];
 }
 
-/*
-class LoadSingleNote extends NotesEvent{
-  final Notes note;
+class SortNotes extends NotesEvent{
+  final String columnName;
+  final String order;
 
-  LoadSingleNote({@required this.note});
+  SortNotes({@required this.columnName, @required this.order});
 
   @override
-  List<Object> get props => [note];
-}*/
+  List<Object> get props => [columnName, order];
+}
+

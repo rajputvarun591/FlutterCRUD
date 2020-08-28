@@ -39,9 +39,9 @@ class DatabaseHelper {
     return result;
   }
 
-  Future<List<Notes>> getNotes(int limit, int offSet) async {
+  Future<List<Notes>> getNotes(int limit, int offSet, String columnName, String order) async {
     var dbClient = await database;
-    List<dynamic> response = await dbClient.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified]);
+    List<dynamic> response = await dbClient.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified], orderBy: "$columnName $order");
     if(response.isEmpty) return [];
     List<Notes> notesList = response.map((e) => Notes.fromMap(e)).toList();
     return notesList;

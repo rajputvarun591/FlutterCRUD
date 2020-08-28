@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/blocs/notes/notes.dart';
+import 'package:notes/models/order.dart';
 import 'package:notes/services/services.dart';
 
+import 'database_tables_models/database_tables_models.dart';
 import 'views/main_view.dart';
 
 void main() {
@@ -17,7 +19,7 @@ void main() {
       child: BlocProvider<NotesBloc>(
           create: (context) {
             final NotesService notesService = RepositoryProvider.of<NotesService>(context);
-            return NotesBloc(notesService)..add(ShowNotes(notes: null));
+            return NotesBloc(notesService)..add(ShowNotes(notes: null, columnName: Notes.columnDateModified, order: Order.descending));
           },
         child: MyApp(),
       ),

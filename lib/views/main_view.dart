@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/blocs/notes/notes_bloc.dart';
-import 'package:notes/database_helper/database_helper.dart';
 import 'package:notes/database_tables_models/database_tables_models.dart';
 import 'package:intl/intl.dart';
+import 'package:notes/models/models.dart';
+import 'package:notes/views/custom_popup_menu_button/custom_popup_menu_button.dart';
 
 import 'navigation_drawer/navigation_drawer.dart';
 import 'note_detail_view.dart';
@@ -17,15 +18,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  DatabaseHelper _databaseHelper = DatabaseHelper();
   bool _isGridUI;
   bool _isAdding;
   bool _hasText;
-  bool _isLoading;
 
   FocusNode _focusNode;
 
   TextEditingController _tEController;
+
 
   @override
   void initState() {
@@ -33,9 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _isGridUI = false;
     _isAdding =false;
     _hasText = false;
-    _isLoading = false;
     _focusNode = FocusNode();
     _tEController = TextEditingController();
+
   }
 
   @override
@@ -46,7 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: <Widget>[
           IconButton(icon: Icon(_isGridUI ? Icons.list : Icons.apps, color: Colors.white70), onPressed: () { setState(() {
             _isGridUI = !_isGridUI;
-          });})
+          });}),
+          CustomPopupMenuButton()
         ],
       ),
       drawer: NavigationDrawer(),
@@ -97,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       SizedBox(height: 5.00),
                                       Expanded(child: Container(alignment: Alignment.centerLeft, child: Text("${state.notes[index].content}", style: TextStyle(color: Colors.blueGrey, fontSize: 18.00), overflow: TextOverflow.clip))),
                                       SizedBox(height: 5.00),
-                                      Container(child: Text("${state.notes[index].dateTime}", style: TextStyle(color: Colors.blueGrey))),
+                                      Container(child: Text(DateFormat("dd MMM hh:mm a").format(DateFormat("dd MMM yyyy hh:mm:ss:a").parse(state.notes[index].dateModified)), style: TextStyle(color: Colors.blueGrey))),
                                     ],
                                   ),
                                 ),
@@ -143,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Container(
                                             child: Text("${state.notes[index].content}", style: TextStyle(color: Colors.blueGrey, fontSize: 18.00), overflow: TextOverflow.ellipsis,)),
                                         Container(
-                                            child: Text("${state.notes[index].dateTime}", style: TextStyle(color: Colors.blueGrey))),
+                                            child: Text(DateFormat("dd MMM hh:mm a").format(DateFormat("dd MMM yyyy hh:mm:ss:a").parse(state.notes[index].dateModified)), style: TextStyle(color: Colors.blueGrey))),
                                       ],
                                     ),
                                   ),
@@ -162,8 +163,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 else if (state is NotesLoading){
                   return Container(alignment: Alignment.center, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue)));
                 }
-                else if (state is NotesLoadFailure) {
-                  return Container(alignment: Alignment.center, child: Text("Something went wrong please Try again"));
+                else if (state is ZeroNotesFound) {
+                  return Container(alignment: Alignment.center, child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.style, color: Colors.blue, size: 50.00),
+                      SizedBox(height: 15.00),
+                      Text(state.message, style: TextStyle(color: Colors.blue, fontSize: 25.00)),
+                    ],
+                  ));
+                }
+                else if (state is Failure) {
+                  return Container(alignment: Alignment.center, child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue, size: 50.00),
+                      SizedBox(height: 15.00),
+                      Text(state.message, style: TextStyle(color: Colors.blue, fontSize: 25.00)),
+                    ],
+                  ));
                 }
                 else {
                   return Container(alignment: Alignment.center, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue), strokeWidth: 2.00));
@@ -192,16 +210,15 @@ class _HomeScreenState extends State<HomeScreen> {
               textCapitalization: TextCapitalization.sentences,
               maxLines: null,
               onSubmitted: (value) async{
-                final bloc = BlocProvider.of<NotesBloc>(context);
                 if(value.isNotEmpty) {
                   Notes notes = Notes(
-                    DateFormat("dd MMM hh:mm:a").format(DateTime.now()),
-                    "${value.split(" ")[0]} ${value.split(" ")[1]}",
+                    DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
+                    "${value.contains(" ") ? "${value.split(" ")[0]} ${value.split(" ")[1]}" : "${value.split(" ")[0]}"}",
                     value,
-                    DateFormat("dd MMM hh:mm:a").format(DateTime.now()),
+                    DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
                   );
-                  bloc.add(AddNote(notes: notes));
-                  bloc.close();
+                  BlocProvider.of<NotesBloc>(context).add(AddNote(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
+                  _tEController.clear();
                 }
               },
               onChanged: (value) {
@@ -253,29 +270,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<int> _saveNote(String value) async{
-    Notes notes = Notes(
-        DateFormat("dd MMM hh:mm:a").format(DateTime.now()),
-        "${value.split(" ")[0]} ${value.split(" ")[1]}",
-        value,
-        DateFormat("dd MMM hh:mm:a").format(DateTime.now()),
-    );
-    int response = await _databaseHelper.saveNote(notes);
-    if(response != 0 ) {
-      _tEController.clear();
-      setState(() {
-
-      });
-      return response;
-    }
-    return 0;
-  }
-
   @override
   void dispose() {
     _tEController.dispose();
-    print("before dispose");
     super.dispose();
-    print("dispose");
   }
 }

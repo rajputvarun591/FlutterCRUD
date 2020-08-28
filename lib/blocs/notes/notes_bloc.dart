@@ -21,22 +21,25 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
     if (event is AddNote) {
       yield*  _mapAddNoteToEvent(event);
     }
-    /*if (event is LoadSingleNote) {
-      yield*  _mapLoadSingleNoteToEvent(event);
-    }*/
     if (event is UpdateNote) {
       yield*  _mapUpdateNoteToEvent(event);
+    }
+    if (event is DeleteNote) {
+      yield*  _mapDeleteNoteToEvent(event);
+    }
+    if (event is SortNotes) {
+      yield*  _mapSortNotesToEvent(event);
     }
   }
 
   Stream<NotesState> _mapShowNotesToEvent(ShowNotes event) async*{
     yield NotesLoading();
     try{
-      final List<Notes> list = await _notesService.getNotes();
+      final List<Notes> list = await _notesService.getNotes(columnName: event.columnName, order: event.order);
       if(list.isNotEmpty) {
         yield NotesLoaded(notes: list);
       } else {
-        yield NotesLoadFailure(message: "No Notes Found");
+        yield ZeroNotesFound(message: "Empty! Add Now");
       }
     } catch (e){
       dev.log(e, time: DateTime.now());
@@ -48,13 +51,13 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
     try {
       final response = await _notesService.addNote(notes: event.notes);
       if (response == 0) {
-        yield NotesLoadFailure(message: "Not Saved");
+        yield Failure(message: "Not Saved");
       } else {
-        final List<Notes> list = await _notesService.getNotes();
+        final List<Notes> list = await _notesService.getNotes(columnName: event.columnName, order: event.order);
         if(list.isNotEmpty) {
           yield NotesLoaded(notes: list);
         } else {
-          yield NotesLoadFailure(message: "No Notes Found");
+          yield ZeroNotesFound(message: "Empty! Add Now");
         }
       }
     } catch (e) {
@@ -62,30 +65,54 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
     }
   }
 
-  /*Stream<NotesState> _mapLoadSingleNoteToEvent(LoadSingleNote event) async*{
-    try {
-      final Notes note = await _notesService.loadSingleNote(id: event.note.id);
-      yield SingleNoteLoaded(note: event.note);
-    } catch (e) {
-      dev.log(e, time: DateTime.now());
-    }
-  }*/
-
   Stream<NotesState> _mapUpdateNoteToEvent(UpdateNote event) async*{
     yield NotesLoading();
     try {
       final response = await _notesService.updateNote(notes: event.notes);
       if (response == 0) {
-        yield NotesLoadFailure(message: "Not Updated");
+        yield Failure(message: "Not Updated");
       } else {
-        final List<Notes> list = await _notesService.getNotes();
+        final List<Notes> list = await _notesService.getNotes(columnName: event.columnName, order: event.order);
         if(list.isNotEmpty) {
           yield NotesLoaded(notes: list);
         } else {
-          yield NotesLoadFailure(message: "No Notes Found");
+          yield ZeroNotesFound(message: "Empty! Add Now");
         }
       }
     } catch (e) {
+      dev.log(e, time: DateTime.now());
+    }
+  }
+
+  Stream<NotesState> _mapDeleteNoteToEvent(DeleteNote event) async*{
+    yield NotesLoading();
+    try {
+      final response = await _notesService.deleteNote(note: event.notes);
+      if (response == 0) {
+        yield Failure(message: "Not Updated");
+      } else {
+        final List<Notes> list = await _notesService.getNotes(columnName: event.columnName, order: event.order);
+        if(list.isNotEmpty) {
+          yield NotesLoaded(notes: list);
+        } else {
+          yield ZeroNotesFound(message: "Empty! Add Now");
+        }
+      }
+    } catch (e) {
+      dev.log(e, time: DateTime.now());
+    }
+  }
+
+  Stream<NotesState> _mapSortNotesToEvent(SortNotes event) async*{
+    yield NotesLoading();
+    try{
+      final List<Notes> list = await _notesService.getNotes(columnName: event.columnName, order: event.order);
+      if(list.isNotEmpty) {
+        yield NotesLoaded(notes: list);
+      } else {
+        yield ZeroNotesFound(message: "Empty! Add Now");
+      }
+    } catch (e){
       dev.log(e, time: DateTime.now());
     }
   }

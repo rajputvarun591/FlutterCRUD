@@ -1,27 +1,27 @@
-import 'package:flutter/cupertino.dart';
+import 'package:meta/meta.dart';
 import 'package:notes/database_helper/database_helper.dart';
 import 'package:notes/database_tables_models/database_tables_models.dart';
 
 abstract class NotesService {
-  Future<List<Notes>> getNotes();
+  Future<List<Notes>> getNotes({@required String columnName, @required String order});
   Future<Notes> loadSingleNote({@required int id});
   Future<int> updateNote({@required Notes notes});
   Future<int> addNote({@required Notes notes});
-  Future<int> deleteNote();
+  Future<int> deleteNote({@required Notes note});
 }
 
 class FakeNoteService extends NotesService{
   DatabaseHelper _databaseHelper = DatabaseHelper();
 
   @override
-  Future<int> deleteNote() {
-    // TODO: implement deleteNote
-    throw UnimplementedError();
+  Future<int> deleteNote({Notes note}) async{
+    int response = await _databaseHelper.deleteNote(note.id);
+    return response;
   }
 
   @override
-  Future<List<Notes>> getNotes() async{
-    List<Notes> notes = await _databaseHelper.getNotes(10, 0);
+  Future<List<Notes>> getNotes({String columnName, String order}) async{
+    List<Notes> notes = await _databaseHelper.getNotes(10, 0, columnName, order);
     return notes;
   }
 
