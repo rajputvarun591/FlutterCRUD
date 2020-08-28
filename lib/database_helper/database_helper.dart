@@ -39,9 +39,9 @@ class DatabaseHelper {
     return result;
   }
 
-  Future<List<Notes>> getNotes() async {
+  Future<List<Notes>> getNotes(int limit, int offSet) async {
     var dbClient = await database;
-    List<dynamic> response = await dbClient.rawQuery("SELECT * FROM ${Notes.tableName}");
+    List<dynamic> response = await dbClient.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified]);
     if(response.isEmpty) return [];
     List<Notes> notesList = response.map((e) => Notes.fromMap(e)).toList();
     return notesList;
@@ -73,6 +73,13 @@ class DatabaseHelper {
     var db = await database;
     List<Map<String, dynamic>> response = await db.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified], where: "${Notes.columnId} = ? ", whereArgs: [id]);
     Notes note = Notes.fromMap(response.first);
+    return note;
+  }
+
+  Future<Notes> getSingleNote(int id) async{
+    var dbClient = await database;
+    List<dynamic> response = await dbClient.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified], where: "${Notes.columnId} = ? ", whereArgs: [id]);
+    Notes note = response.map((e) => Notes.fromMap(e)).toList().first;
     return note;
   }
 }

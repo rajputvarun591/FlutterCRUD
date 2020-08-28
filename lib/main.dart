@@ -1,8 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:notes/ui/main_view.dart';
-import 'package:notes/ui/SplashScreen.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/blocs/notes/notes.dart';
+import 'package:notes/services/services.dart';
 
-void main() => runApp(MyApp());
+import 'views/main_view.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  runApp(
+    RepositoryProvider<NotesService>(
+        create: (context){
+          return FakeNoteService();
+        },
+      child: BlocProvider<NotesBloc>(
+          create: (context) {
+            final NotesService notesService = RepositoryProvider.of<NotesService>(context);
+            return NotesBloc(notesService)..add(ShowNotes(notes: null));
+          },
+        child: MyApp(),
+      ),
+    )
+  );
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -15,7 +36,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Raleway-Medium',
         primarySwatch: Colors.blue,
       ),
-      home: SplashScreen(),
+      home: HomeScreen(),
       routes: <String, WidgetBuilder> {
         '/HomeScreen': (BuildContext context) => new HomeScreen()
       },

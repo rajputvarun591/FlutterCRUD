@@ -1,6 +1,9 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
+import 'package:notes/blocs/notes/notes.dart';
+import 'package:notes/blocs/notes/notes_bloc.dart';
 import 'package:notes/database_helper/database_helper.dart';
 import 'package:notes/database_tables_models/notes.dart';
 
@@ -52,30 +55,45 @@ class _NoteDetailViewState extends State<NoteDetailView> {
       ),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            padding: EdgeInsets.all(15.00),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    padding: EdgeInsets.only(left: 10.00, bottom: 10.00),
-                    child: Text("${_note.dateTime}", style: TextStyle(fontSize: 18.00, color: Colors.blueGrey))),
-                InkWell(
-                  child: Container(
-                      padding: EdgeInsets.all(10.00),
-                      child: Text("${_note.content}", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey))),
-                  onTap: () {
-                    setState(() {
-                      _isEditing = true;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
+          BlocBuilder(
+            bloc: BlocProvider.of<NotesBloc>(context),
+              builder: (context, state){
+                if(state is NotesLoaded) {
+                  return SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    padding: EdgeInsets.all(15.00),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                            padding: EdgeInsets.only(left: 10.00, bottom: 10.00),
+                            child: Text("${state.notes[widget.index].dateTime}", style: TextStyle(fontSize: 18.00, color: Colors.blueGrey))),
+                        InkWell(
+                          child: Container(
+                              padding: EdgeInsets.all(10.00),
+                              child: Text("${state.notes[widget.index].content}", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey))),
+                          onTap: () {
+                            setState(() {
+                              _isEditing = true;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                else if (state is NotesLoading){
+                  return Container(alignment: Alignment.center, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue)));
+                }
+                else if (state is NotesLoadFailure) {
+                  return Container(alignment: Alignment.center, child: Text("Something went wrong please Try again"));
+                }
+                else {
+                  return Container(alignment: Alignment.center, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue), strokeWidth: 2.00));
+                }
+          }),
           Container(
               child: Visibility(
                   visible: _isDeleting, child: Container(alignment:Alignment.center, color: Colors.black12, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(widget.color))))),
@@ -101,7 +119,17 @@ class _NoteDetailViewState extends State<NoteDetailView> {
               textCapitalization: TextCapitalization.sentences,
               maxLines: null,
               onSubmitted: (value) async{
-                if(value.isNotEmpty) await updateNote(value);
+                final bloc = BlocProvider.of<NotesBloc>(context);
+                if(value.isNotEmpty) {
+                  Notes notes = Notes.update(
+                    _note.id,
+                    "${value.split(" ")[0]} ${value.split(" ")[1]}",
+                    value,
+                    DateFormat("dd MMM hh:mm:a").format(DateTime.now()),
+                  );
+                  bloc.add(UpdateNote(notes: notes));
+                  bloc.close();
+                }
               },
               onChanged: (value) {
                 if(value.isNotEmpty) {
