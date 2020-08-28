@@ -1,6 +1,6 @@
 # notes
 
-A new Flutter application.
+A new Flutter application. For Understanding CURD operation. 
 
 ## Getting Started
 
