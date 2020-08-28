@@ -57,7 +57,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
                 context: context,
               builder: (context){
                   return SimpleDialog(
-                    title: Text("Details"),
+                    title: Text("Details", style: TextStyle(color: widget.color)),
                     contentPadding: EdgeInsets.all(10.00),
                     children: [
                       Container(padding: EdgeInsets.only(left: 15.00), child: Text("Date Created", style: TextStyle(fontSize: 18.00))),

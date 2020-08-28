@@ -12,6 +12,7 @@ class CustomPopupMenuButton extends StatefulWidget {
 class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
 
   List<CustomPopupMenuModel> _customPopupMenuModel;
+  int _value;
 
 
   @override
@@ -23,6 +24,7 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
       CustomPopupMenuModel(Icons.sort, "Name Ascending", 3),
       CustomPopupMenuModel(Icons.sort, "Name Descending", 4)
     ];
+    _value = 2;
   }
 
   @override
@@ -32,13 +34,12 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
         return _customPopupMenuModel.map((e) {
           return PopupMenuItem(
               child: Container(
-                  height:20.00,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(width: 10.00),
-                      Icon(e.icon, color: Colors.blue),
+                      SizedBox(width: 5.00),
+                      Icon(e.icon, color: Theme.of(context).primaryColor),
                       SizedBox(width: 10.00),
                       Text(e.text)
                     ]
@@ -48,16 +49,31 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
           );
         }).toList();
       },
+      initialValue: _value,
+      elevation: 5.00,
       color: Colors.white,
+      padding: EdgeInsets.all(10.00),
       onSelected: (value) async{
         if(value == 1) {
           BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnDateModified, order: Order.ascending));
+          setState(() {
+            _value = value;
+          });
         } else if(value == 2 ) {
           BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnDateModified, order: Order.descending));
+          setState(() {
+            _value = value;
+          });
         } else if(value == 3 ) {
           BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnTitle, order: Order.ascending));
+          setState(() {
+            _value = value;
+          });
         } else if(value == 4 ) {
           BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnTitle, order: Order.descending));
+          setState(() {
+            _value = value;
+          });
         }
         //bloc.close();
       },
