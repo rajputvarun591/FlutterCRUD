@@ -30,6 +30,9 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
     if (event is SortNotes) {
       yield*  _mapSortNotesToEvent(event);
     }
+    if (event is UpdateFavoriteStatus) {
+      yield*  _mapUpdateFavoriteStatusToEvent(event);
+    }
   }
 
   Stream<NotesState> _mapShowNotesToEvent(ShowNotes event) async*{
@@ -113,6 +116,25 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
         yield ZeroNotesFound(message: "Empty! Add Now");
       }
     } catch (e){
+      dev.log(e, time: DateTime.now());
+    }
+  }
+
+  Stream<NotesState> _mapUpdateFavoriteStatusToEvent(UpdateFavoriteStatus event) async*{
+    yield NotesLoading();
+    try {
+      final response = await _notesService.updateFavoriteStatus(notes: event.notes);
+      if (response == 0) {
+        yield Failure(message: "Not Updated");
+      } else {
+        final List<Notes> list = await _notesService.getNotes(columnName: event.columnName, order: event.order);
+        if(list.isNotEmpty) {
+          yield NotesLoaded(notes: list);
+        } else {
+          yield ZeroNotesFound(message: "Empty! Add Now");
+        }
+      }
+    } catch (e) {
       dev.log(e, time: DateTime.now());
     }
   }

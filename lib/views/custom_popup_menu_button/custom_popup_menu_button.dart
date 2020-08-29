@@ -22,7 +22,9 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
       CustomPopupMenuModel(Icons.date_range, "Date Ascending", 1),
       CustomPopupMenuModel(Icons.date_range, "Date Descending", 2),
       CustomPopupMenuModel(Icons.sort, "Name Ascending", 3),
-      CustomPopupMenuModel(Icons.sort, "Name Descending", 4)
+      CustomPopupMenuModel(Icons.sort, "Name Descending", 4),
+      CustomPopupMenuModel(Icons.favorite, "Favorite First", 5),
+      CustomPopupMenuModel(Icons.favorite_border, "UnFavorite", 6)
     ];
     _value = 2;
   }
@@ -71,6 +73,16 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
           });
         } else if(value == 4 ) {
           BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnTitle, order: Order.descending));
+          setState(() {
+            _value = value;
+          });
+        } else if(value == 5 ) {
+          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnFavorite, order: Order.descending));
+          setState(() {
+            _value = value;
+          });
+        } else if(value == 6 ) {
+          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnFavorite, order: Order.ascending));
           setState(() {
             _value = value;
           });

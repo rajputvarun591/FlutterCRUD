@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes/views/profile.dart';
+import 'package:notes/views/settings.dart';
 
 class NavigationDrawer extends StatefulWidget {
   @override
@@ -87,6 +88,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
                     onTap: (){
                       Navigator.of(context).pop();
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => Settings()));
                     },
                   ),
                   Divider(),

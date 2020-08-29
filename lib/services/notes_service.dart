@@ -8,6 +8,8 @@ abstract class NotesService {
   Future<int> updateNote({@required Notes notes});
   Future<int> addNote({@required Notes notes});
   Future<int> deleteNote({@required Notes note});
+
+  Future<int> updateFavoriteStatus({@required Notes notes});
 }
 
 class FakeNoteService extends NotesService{
@@ -41,6 +43,12 @@ class FakeNoteService extends NotesService{
   Future<Notes> loadSingleNote({int id}) async{
     Notes notes = await _databaseHelper.getSingleNote(id);
     return notes;
+  }
+
+  @override
+  Future<int> updateFavoriteStatus({Notes notes}) async{
+    int response = await _databaseHelper.updateFavoriteStatus(notes);
+    return response;
   }
 
 }

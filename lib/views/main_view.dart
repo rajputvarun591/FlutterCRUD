@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/blocs/notes/notes_bloc.dart';
+import 'package:notes/database_helper/database_helper.dart';
 import 'package:notes/database_tables_models/database_tables_models.dart';
 import 'package:intl/intl.dart';
 import 'package:notes/models/models.dart';
 import 'package:notes/views/custom_popup_menu_button/custom_popup_menu_button.dart';
+import 'package:notes/views/search_notes/search_notes.dart';
 
 import 'navigation_drawer/navigation_drawer.dart';
 import 'note_detail_view.dart';
@@ -25,9 +27,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   FocusNode _focusNode;
 
   TextEditingController _tEController;
+  
+  DatabaseHelper _databaseHelper = DatabaseHelper();
 
-  //AnimationController _animationController;
-  //Animation<double> _scale;
+  List<Notes> selectedNotes = [];
 
 
   @override
@@ -38,9 +41,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
     _hasText = false;
     _focusNode = FocusNode();
     _tEController = TextEditingController();
-    //_animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 100));
-    //_animationController.repeat(reverse: true);
-    //_scale = Tween<double>(begin: 1.0, end: 0.90).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
   }
 
   @override
@@ -57,8 +57,200 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
                   return Container(
                       child :
                       _isGridUI
-                          ? _gridUI(context, state)
-                          : _listUI(context, state)
+                          ? Container(
+                          child: GridView.count(
+                            padding: EdgeInsets.all(15.00),
+                            physics: BouncingScrollPhysics(),
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 15.00,
+                            mainAxisSpacing: 15.00,
+                            scrollDirection: Axis.vertical,
+                            children: List.generate(
+                                state.notes.length, (index) {
+                              return Material(
+                                animationDuration: Duration(seconds: 1),
+                                color: index.isEven ? Theme.of(context).primaryColorDark.withOpacity(0.5) : Theme.of(context).primaryColorLight.withOpacity(0.5),
+                                borderRadius: BorderRadius.all(Radius.circular(5.00)),
+                                child: InkWell(
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context).size.width / 2.7,
+                                        height: MediaQuery.of(context).size.height / 3,
+                                        padding: EdgeInsets.all(10.00),
+                                        decoration: BoxDecoration(
+                                          //color: index.isEven ? Colors.orange[200] : Colors.blue[200],
+                                          borderRadius: BorderRadius.all(Radius.circular(5.00)),
+                                          //boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2.00, spreadRadius: 3.00)]
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                                child: Hero(
+                                                    tag: index,
+                                                    transitionOnUserGestures: true,
+                                                    flightShuttleBuilder: (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
+                                                      return DefaultTextStyle(
+                                                          style: DefaultTextStyle.of(toHeroContext).style,
+                                                          child: toHeroContext.widget
+                                                      );
+                                                    },
+                                                    child: Text(
+                                                        "${state.notes[index].title}",
+                                                        style: TextStyle(
+                                                            fontWeight: FontWeight.bold,
+                                                            fontSize: 20.00
+                                                        ),
+                                                        overflow: TextOverflow.ellipsis
+                                                    )
+                                                )
+                                            ),
+                                            SizedBox(height: 5.00),
+                                            Expanded(
+                                                child: Container(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text(
+                                                        "${state.notes[index].content}",
+                                                        style: TextStyle(
+                                                            color: Colors.blueGrey,
+                                                            fontSize: 18.00
+                                                        ),
+                                                        overflow: TextOverflow.clip
+                                                    )
+                                                )
+                                            ),
+                                            SizedBox(height: 5.00),
+                                            Container(
+                                                child: Text(
+                                                    DateFormat("dd MMM hh:mm a").format(DateFormat("dd MMM yyyy hh:mm:ss:a").parse(state.notes[index].dateModified)),
+                                                    style: TextStyle(
+                                                        color: Colors.blueGrey
+                                                    ), overflow: TextOverflow.ellipsis,
+                                                )
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.topRight,
+                                        child: IconButton(icon: state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey) : Icon(Icons.favorite, color: Theme.of(context).primaryColor),  onPressed: () {
+                                          Notes notes = Notes.updateFavoriteStatus(state.notes[index].id, state.notes[index].favorite == "no" ? "yes" : "no");
+                                          BlocProvider.of<NotesBloc>(context).add(UpdateFavoriteStatus(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
+                                        }),
+                                      )
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    //_animationController.repeat(reverse: true);
+                                    Future.delayed(Duration(milliseconds: 200),
+                                            () => _gridInkWellOnTap(state.notes[index], index.isEven ? Theme.of(context).primaryColorDark : Theme.of(context).primaryColorLight, index)
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                            ),
+                          )
+                      )
+                          : Container(
+                        child: ListView.separated(
+                            padding: EdgeInsets.all(15.00),
+                            physics: BouncingScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            itemBuilder: (context, index) {
+                              return Material(
+                                color: index.isEven
+                                    ? Theme.of(context).primaryColorDark.withOpacity(0.5)
+                                    : Theme.of(context).primaryColorLight.withOpacity(0.5),
+                                borderRadius: BorderRadius.all(Radius.circular(5.00)),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.all(Radius.circular(5.00)),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(10.00),
+                                        height: MediaQuery.of(context).size.height / 6,
+                                        decoration: BoxDecoration(
+                                          //color: index.isEven ? Colors.orange[200] : Colors.blue[200],
+                                          borderRadius: BorderRadius.all(Radius.circular(5.00)),
+                                          //boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2.00, spreadRadius: 3.00)]
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                                child: Hero(
+                                                    tag: index,
+                                                    transitionOnUserGestures: true,
+                                                    flightShuttleBuilder: (flightContext,
+                                                        animation,
+                                                        flightDirection,
+                                                        fromHeroContext,
+                                                        toHeroContext) {
+                                                      return DefaultTextStyle(
+                                                          style: DefaultTextStyle.of(toHeroContext)
+                                                              .style,
+                                                          child: toHeroContext.widget);
+                                                    },
+                                                    child: Text("${state.notes[index].title}",
+                                                        style: TextStyle(
+                                                            fontWeight: FontWeight.bold,
+                                                            fontSize: 20.00
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                            Container(
+                                                child: Text(
+                                                  "${state.notes[index].content}",
+                                                  style: TextStyle(
+                                                      color: Colors.blueGrey,
+                                                      fontSize: 18.00
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                )),
+                                            Container(
+                                                child: Text(
+                                                    DateFormat("dd MMM hh:mm a").format(
+                                                        DateFormat("dd MMM yyyy hh:mm:ss:a")
+                                                            .parse(state.notes[index].dateModified)),
+                                                    style: TextStyle(color: Colors.blueGrey
+                                                    )
+                                                )
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.topRight,
+                                        child: IconButton(icon: state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey,) : Icon(Icons.favorite, color: Theme.of(context).primaryColor),  onPressed: () {
+                                          Notes notes = Notes.updateFavoriteStatus(state.notes[index].id, state.notes[index].favorite == "no" ? "yes" : "no");
+                                          BlocProvider.of<NotesBloc>(context).add(UpdateFavoriteStatus(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
+                                        }),
+                                      )
+                                    ],
+                                  ),
+                                  onTap: () async{
+                                    bool isDeleted = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => NoteDetailView(notes: state.notes[index], color: index.isEven
+                                        ? Theme.of(context).primaryColorDark
+                                        : Theme.of(context).primaryColorLight, index: index)));
+                                    if(isDeleted ?? false) {
+                                      setState(() {
+                                        isDeleted = false;
+                                      });
+                                    }
+                                  },
+                                ),
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return SizedBox(height: 10.00);
+                            },
+                            itemCount: state.notes.length),
+                      )
                   );
                 }
                 else if (state is NotesLoading){
@@ -75,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
                 }
               }
           ),
-          Visibility(visible: _isAdding, child: Container(
+          Visibility(visible: (_isAdding), child: Container(
             alignment: Alignment.bottomCenter,
             child: TextField(
               decoration: InputDecoration(
@@ -103,6 +295,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
                     "${value.contains(" ") ? "${value.split(" ")[0]} ${value.split(" ")[1]}" : "${value.split(" ")[0]}"}",
                     value,
                     DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
+                    "no"
                   );
                   BlocProvider.of<NotesBloc>(context).add(AddNote(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
                   _tEController.clear();
@@ -138,14 +331,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
     }
   }
 
-  void _listInkWellOnTap(Notes note, Color color, int index) async{
-    bool isDeleted = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => NoteDetailView(notes: note, color: color, index: index)));
-    if(isDeleted ?? false) {
-      setState(() {
-        isDeleted = false;
-      });
-    }
-  }
 
   @override
   void dispose() {
@@ -191,6 +376,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
                 _isGridUI = !_isGridUI;
               });
             }),
+        IconButton(icon: Icon(Icons.search), onPressed: ()async{
+          List<Notes> list = await _databaseHelper.getAllNotes();
+          await showSearch<Notes>(
+              context: context,
+              delegate: SearchNotes(bloc: BlocProvider.of<NotesBloc>(context), list: list)
+          );
+        }),
         CustomPopupMenuButton()
       ],
     );
@@ -198,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
 
   Visibility _floatingActionButton(BuildContext context) {
     return Visibility(
-      visible: !_isAdding,
+      visible: (!_isAdding),
       child: FloatingActionButton(
           heroTag: "fab",
           tooltip: 'Add New Note',
@@ -235,178 +427,4 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
     );
   }
 
-  Widget _gridUI(BuildContext context, NotesLoaded state) {
-    return Container(
-        child: GridView.count(
-          padding: EdgeInsets.all(15.00),
-          physics: BouncingScrollPhysics(),
-          crossAxisCount: 2,
-          crossAxisSpacing: 15.00,
-          mainAxisSpacing: 15.00,
-          scrollDirection: Axis.vertical,
-          children: List.generate(
-            state.notes.length, (index) {
-              return Material(
-                animationDuration: Duration(seconds: 1),
-                color: index.isEven ? Theme.of(context).primaryColorDark.withOpacity(0.5) : Theme.of(context).primaryColorLight.withOpacity(0.5),
-                borderRadius: BorderRadius.all(Radius.circular(5.00)),
-                child: InkWell(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width / 3,
-                    height: MediaQuery.of(context).size.height / 3,
-                    padding: EdgeInsets.all(10.00),
-                    decoration: BoxDecoration(
-                      //color: index.isEven ? Colors.orange[200] : Colors.blue[200],
-                      borderRadius: BorderRadius.all(Radius.circular(5.00)),
-                      //boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2.00, spreadRadius: 3.00)]
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          child: Hero(
-                            tag: index,
-                            transitionOnUserGestures: true,
-                            flightShuttleBuilder: (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
-                              return DefaultTextStyle(
-                                  style: DefaultTextStyle.of(toHeroContext).style,
-                                  child: toHeroContext.widget
-                              );
-                            },
-                            child: Text(
-                              "${state.notes[index].title}",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20.00
-                              ),
-                              overflow: TextOverflow.ellipsis
-                            )
-                          )
-                        ),
-                        SizedBox(height: 5.00),
-                        Expanded(
-                            child: Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                    "${state.notes[index].content}",
-                                    style: TextStyle(
-                                        color: Colors.blueGrey,
-                                        fontSize: 18.00
-                                    ),
-                                    overflow: TextOverflow.clip
-                                )
-                            )
-                        ),
-                        SizedBox(height: 5.00),
-                        Container(
-                            child: Text(
-                                DateFormat("dd MMM hh:mm a").format(DateFormat("dd MMM yyyy hh:mm:ss:a").parse(state.notes[index].dateModified)),
-                                style: TextStyle(
-                                    color: Colors.blueGrey
-                                )
-                            )
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    //_animationController.repeat(reverse: true);
-                    Future.delayed(Duration(milliseconds: 200),
-                            () => _gridInkWellOnTap(state.notes[index], index.isEven ? Theme.of(context).primaryColorDark : Theme.of(context).primaryColorLight, index)
-                    );
-                  },
-                ),
-              );
-            }
-          ),
-        )
-    );
-  }
-
-  Widget _listUI(BuildContext context, NotesLoaded state) {
-    return Container(
-      child: ListView.separated(
-          padding: EdgeInsets.all(15.00),
-          physics: BouncingScrollPhysics(),
-          scrollDirection: Axis.vertical,
-          itemBuilder: (context, index) {
-            return Material(
-              color: index.isEven
-                  ? Theme.of(context).primaryColorDark.withOpacity(0.5)
-                  : Theme.of(context).primaryColorLight.withOpacity(0.5),
-              borderRadius: BorderRadius.all(Radius.circular(5.00)),
-              child: InkWell(
-                borderRadius: BorderRadius.all(Radius.circular(5.00)),
-                child: Container(
-                  padding: EdgeInsets.all(10.00),
-                  height: MediaQuery.of(context).size.height / 6,
-                  decoration: BoxDecoration(
-                    //color: index.isEven ? Colors.orange[200] : Colors.blue[200],
-                    borderRadius: BorderRadius.all(Radius.circular(5.00)),
-                    //boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2.00, spreadRadius: 3.00)]
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                          child: Hero(
-                              tag: index,
-                              transitionOnUserGestures: true,
-                              flightShuttleBuilder: (flightContext,
-                                  animation,
-                                  flightDirection,
-                                  fromHeroContext,
-                                  toHeroContext) {
-                                return DefaultTextStyle(
-                                    style: DefaultTextStyle.of(toHeroContext)
-                                        .style,
-                                    child: toHeroContext.widget);
-                              },
-                              child: Text("${state.notes[index].title}",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20.00
-                                  )
-                              )
-                          )
-                      ),
-                      Container(
-                          child: Text(
-                        "${state.notes[index].content}",
-                        style: TextStyle(
-                            color: Colors.blueGrey,
-                            fontSize: 18.00
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      )),
-                      Container(
-                          child: Text(
-                              DateFormat("dd MMM hh:mm a").format(
-                                  DateFormat("dd MMM yyyy hh:mm:ss:a")
-                                      .parse(state.notes[index].dateModified)),
-                              style: TextStyle(color: Colors.blueGrey
-                              )
-                          )
-                      ),
-                    ],
-                  ),
-                ),
-                onTap: () => _listInkWellOnTap(
-                    state.notes[index],
-                    index.isEven
-                        ? Theme.of(context).primaryColorDark
-                        : Theme.of(context).primaryColorLight,
-                    index
-                ),
-              ),
-            );
-          },
-          separatorBuilder: (context, index) {
-            return SizedBox(height: 10.00);
-          },
-          itemCount: state.notes.length),
-    );
-  }
 }

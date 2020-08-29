@@ -188,7 +188,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
         builder: (context) {
           return AlertDialog(
             backgroundColor: Colors.white,
-            title: Container(child: Text("Are you sure you want to delete this Note?")),
+            title: Container(child: Text("Are you sure you want to delete this Note?", style: TextStyle(fontWeight: FontWeight.normal))),
             actions: [
               FlatButton(onPressed: (){Navigator.of(context).pop();}, child: Text("Cancel")),
               FlatButton(onPressed: () async{

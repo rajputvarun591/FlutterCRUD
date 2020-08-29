@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:notes/models/theme_model.dart';
 
 class AppTheme {
-  static final ThemeData blueTheme = ThemeData(
+
+  static final String blueTheme = "blueTheme";
+  static final String redTheme = "redTheme";
+  static final String tealTheme = "tealTheme";
+  static final String purpleTheme = "purpleTheme";
+
+  static final ThemeData getBlueTheme = ThemeData(
     primaryColor: Colors.blue,
     primaryColorDark: Colors.orange,
     primaryColorLight: Colors.green,
@@ -16,7 +23,7 @@ class AppTheme {
     fontFamily: "Raleway-Medium"
   );
 
-  static final ThemeData redTheme = ThemeData(
+  static final ThemeData getRedTheme = ThemeData(
     primaryColor: Colors.red,
     primaryColorDark: Colors.pink,
     primaryColorLight: Colors.orange,
@@ -31,7 +38,7 @@ class AppTheme {
     fontFamily: "Raleway-Medium"
   );
 
-  static final ThemeData tealTheme = ThemeData(
+  static final ThemeData getTealTheme = ThemeData(
     primaryColor: Colors.teal,
     primaryColorDark: Colors.cyan,
     primaryColorLight: Colors.blue,
@@ -46,7 +53,7 @@ class AppTheme {
     fontFamily: "Raleway-Medium"
   );
 
-  static final ThemeData purpleTheme = ThemeData(
+  static final ThemeData getPurpleTheme = ThemeData(
     primaryColor: Colors.deepPurple,
     primaryColorDark: Colors.purple,
     primaryColorLight: Colors.indigoAccent,
@@ -60,4 +67,11 @@ class AppTheme {
     scaffoldBackgroundColor: Colors.white,
     fontFamily: "Raleway-Medium"
   );
+
+  static Future<ThemeModel> getTheme(String themeName) async {
+    if(themeName == AppTheme.blueTheme) return ThemeModel(themeData: AppTheme.getBlueTheme);
+    if(themeName == AppTheme.redTheme) return ThemeModel(themeData: AppTheme.getRedTheme);
+    if(themeName == AppTheme.tealTheme) return ThemeModel(themeData: AppTheme.getTealTheme);
+    else return ThemeModel(themeData: AppTheme.getBlueTheme);
+  }
 }

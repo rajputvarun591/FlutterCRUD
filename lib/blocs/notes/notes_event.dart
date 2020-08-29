@@ -53,6 +53,17 @@ class UpdateNote extends NotesEvent{
   List<Object> get props => [notes];
 }
 
+class UpdateFavoriteStatus extends NotesEvent{
+  final Notes notes;
+  final String columnName;
+  final String order;
+
+  UpdateFavoriteStatus({@required this.notes, @required this.columnName, @required this.order});
+
+  @override
+  List<Object> get props => [notes];
+}
+
 class SortNotes extends NotesEvent{
   final String columnName;
   final String order;
