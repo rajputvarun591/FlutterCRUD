@@ -35,14 +35,32 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'NotePad',
-      theme: AppTheme.getTealTheme,
-      home: HomeScreen(),
-      routes: <String, WidgetBuilder> {
-        '/HomeScreen': (BuildContext context) => new HomeScreen()
+    return RepositoryProvider<ThemeService>(
+      create: (context){
+        return FakeThemeService();
       },
+      child: BlocProvider<ThemeBloc>(create: (context) {
+        return ThemeBloc(RepositoryProvider.of<ThemeService>(context))..add(ChangeTheme(themeName: AppTheme.blueTheme));
+      }, child: BlocBuilder<ThemeBloc, ThemeState>(builder: (context, state){
+        if(state is ThemeChanged) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'NotePad',
+            theme: state.theme.themeData,
+            home: HomeScreen(),
+
+            routes: <String, WidgetBuilder> {
+              '/HomeScreen': (BuildContext context) => new HomeScreen()
+            },
+          );
+        }
+        return WidgetsApp(
+          color: Colors.pinkAccent,
+          builder: (context, int){
+            return Scaffold(body: Container(alignment: Alignment.center, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue))));
+          },
+        );
+      })),
     );
   }
 }

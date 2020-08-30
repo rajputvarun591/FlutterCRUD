@@ -135,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
                                       ),
                                       Container(
                                         alignment: Alignment.topRight,
-                                        child: IconButton(icon: state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey) : Icon(Icons.favorite, color: Theme.of(context).primaryColor),  onPressed: () {
+                                        child: IconButton(icon: state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey) : Icon(Icons.favorite),  onPressed: () {
                                           Notes notes = Notes.updateFavoriteStatus(state.notes[index].id, state.notes[index].favorite == "no" ? "yes" : "no");
                                           BlocProvider.of<NotesBloc>(context).add(UpdateFavoriteStatus(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
                                         }),
@@ -226,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
                                       ),
                                       Container(
                                         alignment: Alignment.topRight,
-                                        child: IconButton(icon: state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey,) : Icon(Icons.favorite, color: Theme.of(context).primaryColor),  onPressed: () {
+                                        child: IconButton(icon: state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey,) : Icon(Icons.favorite),  onPressed: () {
                                           Notes notes = Notes.updateFavoriteStatus(state.notes[index].id, state.notes[index].favorite == "no" ? "yes" : "no");
                                           BlocProvider.of<NotesBloc>(context).add(UpdateFavoriteStatus(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
                                         }),
@@ -353,9 +353,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.style, color: Colors.blue, size: 50.00),
+              Icon(Icons.style, color: Theme.of(context).primaryColor, size: 50.00),
               SizedBox(height: 15.00),
-              Text(state.message, style: TextStyle(color: Colors.blue, fontSize: 25.00)),
+              Text(state.message, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 25.00)),
             ],
         )
     );

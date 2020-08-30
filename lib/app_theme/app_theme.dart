@@ -14,6 +14,7 @@ class AppTheme {
     primaryColorLight: Colors.green,
     cursorColor: Colors.grey,
     buttonColor: Colors.blue[400],
+    //iconTheme: IconThemeData(color: Colors.blue),
     textTheme: TextTheme(
       headline6: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.00),
       subtitle1: TextStyle(color: Colors.blueGrey),
@@ -29,6 +30,7 @@ class AppTheme {
     primaryColorLight: Colors.orange,
     cursorColor: Colors.grey,
     buttonColor: Colors.red[400],
+      //iconTheme: IconThemeData(color: Colors.red),
     textTheme: TextTheme(
       headline6: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.00),
       subtitle1: TextStyle(color: Colors.blueGrey),
@@ -44,6 +46,7 @@ class AppTheme {
     primaryColorLight: Colors.blue,
     cursorColor: Colors.grey,
     buttonColor: Colors.teal[400],
+      //iconTheme: IconThemeData(color: Colors.teal),
     textTheme: TextTheme(
       headline6: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.00),
       subtitle1: TextStyle(color: Colors.blueGrey),
@@ -59,6 +62,7 @@ class AppTheme {
     primaryColorLight: Colors.indigoAccent,
     cursorColor: Colors.grey,
     buttonColor: Colors.deepPurple[400],
+      //iconTheme: IconThemeData(color: Colors.deepPurple),
     textTheme: TextTheme(
       headline6: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.00),
       subtitle1: TextStyle(color: Colors.blueGrey),
@@ -72,6 +76,6 @@ class AppTheme {
     if(themeName == AppTheme.blueTheme) return ThemeModel(themeData: AppTheme.getBlueTheme);
     if(themeName == AppTheme.redTheme) return ThemeModel(themeData: AppTheme.getRedTheme);
     if(themeName == AppTheme.tealTheme) return ThemeModel(themeData: AppTheme.getTealTheme);
-    else return ThemeModel(themeData: AppTheme.getBlueTheme);
+    else return ThemeModel(themeData: AppTheme.getPurpleTheme);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/app_theme/app_theme.dart';
 import 'package:notes/blocs/theme_bloc/theme_bloc.dart';
 import 'package:notes/blocs/theme_bloc/theme_event.dart';
@@ -12,6 +13,7 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> with TickerProviderStateMixin{
   List<AnimationController> _animationController;
   ThemeBloc _themeBloc;
+  int index;
 
 
   @override
@@ -23,6 +25,7 @@ class _SettingsState extends State<Settings> with TickerProviderStateMixin{
       AnimationController(vsync: this, duration: Duration(milliseconds: 100))
     ];
     super.initState();
+    index = 1;
     _themeBloc = ThemeBloc(new FakeThemeService());
   }
 
@@ -64,19 +67,22 @@ class _SettingsState extends State<Settings> with TickerProviderStateMixin{
                             child: Container()
                         ),
                         Visibility(
-                            visible: false,
+                            visible: index == 1,
                             child: Container(
                                 padding: EdgeInsets.all(10.00),
-                                child: Icon(Icons.check)
+                                child: Icon(Icons.check, color: Theme.of(context).primaryColor,)
                             )
                         )
                       ],
                     ),
                   ),
                   onTap: (){
+                    setState(() {
+                      index = 1;
+                    });
                     _animationController[0].repeat(reverse: true);
                     Future.delayed(Duration(milliseconds: 200), (){
-                      _themeBloc.add(ChangeTheme(themeName: AppTheme.tealTheme));
+                      BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: AppTheme.tealTheme));
                       _animationController[0].stop();
                     });
                   },
@@ -112,19 +118,22 @@ class _SettingsState extends State<Settings> with TickerProviderStateMixin{
                             child: Container()
                         ),
                         Visibility(
-                            visible: false,
+                            visible: index == 2,
                             child: Container(
                                 padding: EdgeInsets.all(10.00),
-                                child: Icon(Icons.check)
+                                child: Icon(Icons.check, color: Theme.of(context).primaryColor,)
                             )
                         )
                       ],
                     ),
                   ),
                   onTap: (){
+                    setState(() {
+                      index = 2;
+                    });
                     _animationController[1].repeat(reverse: true);
                     Future.delayed(Duration(milliseconds: 200), (){
-                      _themeBloc.add(ChangeTheme(themeName: AppTheme.blueTheme));
+                      BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: AppTheme.blueTheme));
                       _animationController[1].stop();
                     });
                   },
@@ -160,19 +169,22 @@ class _SettingsState extends State<Settings> with TickerProviderStateMixin{
                             child: Container()
                         ),
                         Visibility(
-                            visible: false,
+                            visible: index == 3,
                             child: Container(
                                 padding: EdgeInsets.all(10.00),
-                                child: Icon(Icons.check)
+                                child: Icon(Icons.check, color: Theme.of(context).primaryColor,)
                             )
                         )
                       ],
                     ),
                   ),
                   onTap: (){
+                    setState(() {
+                      index= 3;
+                    });
                     _animationController[2].repeat(reverse: true);
                     Future.delayed(Duration(milliseconds: 200), (){
-                      _themeBloc.add(ChangeTheme(themeName: AppTheme.redTheme));
+                      BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: AppTheme.redTheme));
                       _animationController[2].stop();
                     });
                   },
@@ -208,19 +220,22 @@ class _SettingsState extends State<Settings> with TickerProviderStateMixin{
                             child: Container()
                         ),
                         Visibility(
-                            visible: false,
+                            visible: index == 4,
                             child: Container(
                                 padding: EdgeInsets.all(10.00),
-                                child: Icon(Icons.check)
+                                child: Icon(Icons.check, color: Theme.of(context).primaryColor,)
                             )
                         )
                       ],
                     ),
                   ),
                   onTap: (){
+                    setState(() {
+                      index = 4;
+                    });
                     _animationController[3].repeat(reverse: true);
                     Future.delayed(Duration(milliseconds: 200), (){
-                      _themeBloc.add(ChangeTheme(themeName: AppTheme.purpleTheme));
+                      BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: AppTheme.purpleTheme));
                       _animationController[3].stop();
                     });
                   },
