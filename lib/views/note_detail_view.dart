@@ -194,7 +194,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
               FlatButton(onPressed: () async{
                   Navigator.of(context).pop();
                   await deleteNote(context, _note);
-                }, child: Text("Delete")),
+                }, child: Text("Delete", style: TextStyle(color: Theme.of(context).primaryColor))),
             ],
           );
         }

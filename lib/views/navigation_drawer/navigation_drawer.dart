@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes/views/profile.dart';
 import 'package:notes/views/settings.dart';
+import 'package:package_info/package_info.dart';
 
 class NavigationDrawer extends StatefulWidget {
   @override
@@ -92,6 +93,41 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     },
                   ),
                   Divider(),
+                  ListTile(
+                    title: Text("About Us", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey)),
+                    leading: Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
+                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    onTap: () async{
+                      PackageInfo info = await PackageInfo.fromPlatform();
+                      Navigator.of(context).pop();
+                      showAboutDialog(
+                          context: context,
+                        applicationVersion: info.version,
+                        applicationIcon: Icon(Icons.apps, color: Theme.of(context).primaryColor, size: 30.00,),
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(5.00),
+                            child: Text(""
+                                "Developer Name", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 18.00)),
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(left : 20.00, bottom: 5.00),
+                            child: Text("Varun Verma", style: TextStyle(color: Colors.blueGrey)),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(5.00),
+                            child: Text("Developer Mail", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 18.00)),
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(left : 20.00, bottom: 5.00),
+                            child: Text("rajputvarun591@gmail.com", style: TextStyle(color: Colors.blueGrey)),
+                          ),
+                        ]
+
+                      );
+                    },
+                  ),
+                  Divider(),
                   Container(
                     padding: EdgeInsets.all(10.00),
                       child: Column(
@@ -105,6 +141,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         ],
                       )
                   ),
+                  Divider(),
                 ],
               ),
             ),

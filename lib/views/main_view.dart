@@ -32,9 +32,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
 
   List<Notes> selectedNotes = [];
 
+  Animation<double> _progress;
+  AnimationController _animationController;
+
 
   @override
   void initState() {
+    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 400))..addListener(() {setState(() {
+
+    });});
+    _progress = Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(parent: _animationController, curve: Interval(0.0, 0.75, curve: Curves.linear)));
     super.initState();
     _isGridUI = false;
     _isAdding =false;
@@ -72,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
                                 color: index.isEven ? Theme.of(context).primaryColorDark.withOpacity(0.5) : Theme.of(context).primaryColorLight.withOpacity(0.5),
                                 borderRadius: BorderRadius.all(Radius.circular(5.00)),
                                 child: InkWell(
+                                  borderRadius: BorderRadius.all(Radius.circular(5.00)),
                                   child: Stack(
                                     children: [
                                       Container(
@@ -366,12 +374,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
       title: Text("Notes"),
       actions: <Widget>[
         IconButton(
-            icon: Icon(
-                _isGridUI
-                    ? Icons.list
-                    : Icons.apps, color: Colors.white70
+            icon: AnimatedIcon(
+                icon: AnimatedIcons.view_list,
+              progress: _progress,
             ),
             onPressed: () {
+              _isGridUI ? _animationController.reverse() : _animationController.forward();
               setState(() {
                 _isGridUI = !_isGridUI;
               });

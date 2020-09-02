@@ -121,7 +121,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
   }
 
   Stream<NotesState> _mapUpdateFavoriteStatusToEvent(UpdateFavoriteStatus event) async*{
-    yield NotesLoading();
+    //yield NotesLoading();
     try {
       final response = await _notesService.updateFavoriteStatus(notes: event.notes);
       if (response == 0) {
