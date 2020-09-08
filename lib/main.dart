@@ -5,6 +5,8 @@ import 'package:notes/app_theme/app_theme.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/blocs/theme_bloc/theme_event.dart';
 import 'package:notes/models/order.dart';
+import 'package:notes/router/constants.dart';
+import 'package:notes/router/router.dart';
 import 'package:notes/services/services.dart';
 
 import 'blocs/theme_bloc/theme_bloc.dart';
@@ -48,10 +50,8 @@ class MyApp extends StatelessWidget {
             title: 'NotePad',
             theme: state.theme.themeData,
             home: HomeScreen(),
-
-            routes: <String, WidgetBuilder> {
-              '/HomeScreen': (BuildContext context) => new HomeScreen()
-            },
+            initialRoute: RoutePaths.homeRoute,
+            onGenerateRoute: Router.generateRoute,
           );
         }
         return WidgetsApp(

@@ -9,10 +9,8 @@ import 'package:notes/models/order.dart';
 
 class NoteDetailView extends StatefulWidget {
   final Notes notes;
-  final Color color;
-  final int index;
 
-  NoteDetailView({@required this.notes, @required this.color, @required this.index});
+  NoteDetailView({@required this.notes});
 
   @override
   _NoteDetailViewState createState() => _NoteDetailViewState();
@@ -39,7 +37,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
     _isDeleting = false;
     _isEditing= false;
     _hasText = false;
-    _index = widget.index;
+    _index = widget.notes.index;
     _note = widget.notes;
     _focusNode = FocusNode();
     _tEController = TextEditingController(text: _note.content);
@@ -49,15 +47,15 @@ class _NoteDetailViewState extends State<NoteDetailView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Hero(tag: widget.index, child: Text(_note.title)),
-        backgroundColor: widget.color,
+        title: Hero(tag: widget.notes.index, child: Text(_note.title)),
+        backgroundColor: widget.notes.color,
         actions: [
           IconButton(icon: Icon(Icons.info_outline), onPressed: (){
             showDialog(
                 context: context,
               builder: (context){
                   return SimpleDialog(
-                    title: Text("Details", style: TextStyle(color: widget.color)),
+                    title: Text("Details", style: TextStyle(color: widget.notes.color)),
                     contentPadding: EdgeInsets.all(10.00),
                     children: [
                       Container(padding: EdgeInsets.only(left: 15.00), child: Text("Date Created", style: TextStyle(fontSize: 18.00))),
@@ -119,7 +117,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
           }),
           Container(
               child: Visibility(
-                  visible: _isDeleting, child: Container(alignment:Alignment.center, color: Colors.black12, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(widget.color))))),
+                  visible: _isDeleting, child: Container(alignment:Alignment.center, color: Colors.black12, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(widget.notes.color))))),
           Visibility(visible: _isEditing, child: Container(
             alignment: Alignment.bottomCenter,
             child: TextField(
@@ -173,7 +171,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
         visible: !_isEditing,
         child: FloatingActionButton(
           heroTag: "fab",
-          backgroundColor: widget.color,
+          backgroundColor: widget.notes.color,
           child: Icon(Icons.delete_outline),
             tooltip: "Delete This Note",
             onPressed: () => _fabOnPressed(context)

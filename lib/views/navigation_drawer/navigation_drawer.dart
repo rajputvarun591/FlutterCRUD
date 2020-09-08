@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/router/constants.dart';
 import 'package:notes/views/profile.dart';
 import 'package:notes/views/settings.dart';
 import 'package:package_info/package_info.dart';
@@ -89,7 +90,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
                     onTap: (){
                       Navigator.of(context).pop();
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => Settings()));
+                      Navigator.pushNamed(context, RoutePaths.settingsRoute);
                     },
                   ),
                   Divider(),

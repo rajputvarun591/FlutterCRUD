@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Notes {
   static final String tableName = 'notes';
   static final String columnId = 'id';
@@ -22,12 +24,17 @@ class Notes {
   String title;
   String content;
   String favorite;
+  Color color;
+  int index;
+
 
   Notes(this.dateTime, this.title, this.content, this.dateModified, this.favorite);
 
   Notes.update(this.id, this.title, this.content, this.dateModified);
 
   Notes.updateFavoriteStatus(this.id, this.favorite);
+
+  Notes.forView(this.id, this.title, this.content, this.dateTime, this.dateModified, this.index, this.color);
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();

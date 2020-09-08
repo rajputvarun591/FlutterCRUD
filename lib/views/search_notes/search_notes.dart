@@ -33,60 +33,64 @@ class SearchNotes extends SearchDelegate<Notes>{
 
   @override
   Widget buildResults(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(15.00),
-        child: Material(
-          color: Theme.of(context).primaryColorLight.withOpacity(0.5),
-          borderRadius: BorderRadius.all(Radius.circular(5.00)),
-          child: InkWell(
-            borderRadius: BorderRadius.all(Radius.circular(5.00)),
-            child: Container(
-              padding: EdgeInsets.all(10.00),
-              decoration: BoxDecoration(
-                //color: index.isEven ? Colors.orange[200] : Colors.blue[200],
+    if(list.indexWhere((element) => element.title == query) >= 0){
+      return Scaffold(
+          body: Container(
+              padding: EdgeInsets.all(15.00),
+              child: Material(
+                color: Theme.of(context).primaryColorLight.withOpacity(0.5),
                 borderRadius: BorderRadius.all(Radius.circular(5.00)),
-                //boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2.00, spreadRadius: 3.00)]
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                      child: Text(query,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.00
-                          )
-                      )
-                  ),
-                  SizedBox(height: 5.00),
-                  Container(
-                      child: Text(
-                        "${list[list.indexWhere((element) => element.title == query)].content}",
-                        style: TextStyle(
-                            color: Colors.blueGrey,
-                            fontSize: 18.00
+                child: InkWell(
+                  borderRadius: BorderRadius.all(Radius.circular(5.00)),
+                  child: Container(
+                    padding: EdgeInsets.all(10.00),
+                    decoration: BoxDecoration(
+                      //color: index.isEven ? Colors.orange[200] : Colors.blue[200],
+                      borderRadius: BorderRadius.all(Radius.circular(5.00)),
+                      //boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2.00, spreadRadius: 3.00)]
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                            child: Text(query,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20.00
+                                )
+                            )
                         ),
-                        overflow: TextOverflow.clip,
-                      )),
-                  SizedBox(height: 5.00),
-                  Container(
-                      child: Text(
-                          DateFormat("dd MMM hh:mm a")
-                              .format(DateFormat("dd MMM yyyy hh:mm:ss:a")
-                              .parse(list[list.indexWhere((element) => element.title == query)].dateModified)), style: TextStyle(color: Colors.blueGrey),
-                      )
-                  )
-                ],
-              ),
-            ),
-            onTap: () {},
-          ),
-        )
-      )
-    );
+                        SizedBox(height: 5.00),
+                        Container(
+                            child: Text(
+                              "${list[list.indexWhere((element) => element.title == query)].content}",
+                              style: TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontSize: 18.00
+                              ),
+                              overflow: TextOverflow.clip,
+                            )),
+                        SizedBox(height: 5.00),
+                        Container(
+                            child: Text(
+                              DateFormat("dd MMM hh:mm a")
+                                  .format(DateFormat("dd MMM yyyy hh:mm:ss:a")
+                                  .parse(list[list.indexWhere((element) => element.title == query)].dateModified)), style: TextStyle(color: Colors.blueGrey),
+                            )
+                        )
+                      ],
+                    ),
+                  ),
+                  onTap: () {},
+                ),
+              )
+          )
+      );
+    } else {
+      return Container(alignment: Alignment.center, child: Text("No Match Found!"));
+    }
   }
 
   @override
