@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes/router/constants.dart';
 import 'package:notes/views/profile.dart';
-import 'package:notes/views/settings.dart';
 import 'package:package_info/package_info.dart';
 
 class NavigationDrawer extends StatefulWidget {

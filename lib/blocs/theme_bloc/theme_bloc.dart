@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:notes/models/models.dart';
-import 'package:notes/models/theme_model.dart';
 import 'package:notes/services/services.dart';
 import 'dart:developer' as dev;
 

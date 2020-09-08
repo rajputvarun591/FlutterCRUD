@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import 'package:notes/database_tables_models/notes.dart';
 import 'package:notes/models/models.dart';
 import 'package:notes/router/constants.dart';
-import 'package:notes/views/note_detail_view.dart';
 
 class NotesGridView extends StatelessWidget {
   final NotesLoaded state;

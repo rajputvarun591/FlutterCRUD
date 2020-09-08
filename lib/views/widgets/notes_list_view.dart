@@ -5,7 +5,6 @@ import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/database_tables_models/notes.dart';
 import 'package:notes/models/models.dart';
 import 'package:notes/router/constants.dart';
-import 'package:notes/views/note_detail_view.dart';
 
 class NotesListView extends StatelessWidget {
   final NotesLoaded state;
