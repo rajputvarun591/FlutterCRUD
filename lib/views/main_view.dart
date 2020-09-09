@@ -27,8 +27,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   FocusNode _focusNode;
 
   TextEditingController _tEController;
-  
-  DatabaseHelper _databaseHelper = DatabaseHelper();
 
   Animation<double> _progress;
   AnimationController _animationController;
@@ -49,30 +47,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Notes"),
-        actions: <Widget>[
-          IconButton(
-              icon: AnimatedIcon(
-                icon: AnimatedIcons.view_list,
-                progress: _progress,
-              ),
-              onPressed: () {
-                _isGrid ? _animationController.reverse() : _animationController.forward();
-                setState(() {
-                  _isGrid = !_isGrid;
-                });
-              }),
-          IconButton(icon: Icon(Icons.search), onPressed: ()async{
-            List<Notes> list = await _databaseHelper.getAllNotes();
-            await showSearch<Notes>(
-                context: context,
-                delegate: SearchNotes(bloc: BlocProvider.of<NotesBloc>(context), list: list)
-            );
-          }),
-          CustomPopupMenuButton()
-        ],
-      ),
+      appBar: CustomAppBar(progress: _progress, animationController: _animationController),
       drawer: NavigationDrawer(),
       body: Stack(
         children: [
@@ -80,9 +55,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
             bloc: BlocProvider.of<NotesBloc>(context),
               builder: (context, state){
                 if(state is NotesLoaded){
-                  return _isGrid
-                      ? NotesGridView(state: state)
-                      : NotesListView(state: state);
+                  return NotesGridView(state: state);
                 }
                 else if (state is NotesLoading){
                   return _notesLoadingWidget(context);
@@ -215,6 +188,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
             strokeWidth: 2.00
         )
     );
+  }
+
+  void _gridTransect() {
+    _animationController.reverse();
+  }
+
+  void _listTransect() {
+    _animationController.forward();
   }
 
 }

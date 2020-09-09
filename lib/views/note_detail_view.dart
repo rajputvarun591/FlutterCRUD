@@ -18,7 +18,6 @@ class NoteDetailView extends StatefulWidget {
 
 class _NoteDetailViewState extends State<NoteDetailView> {
 
-  bool _isDeleting;
   bool _isEditing;
   bool _hasText;
 
@@ -34,7 +33,6 @@ class _NoteDetailViewState extends State<NoteDetailView> {
   @override
   void initState() {
     super.initState();
-    _isDeleting = false;
     _isEditing= false;
     _hasText = false;
     _index = widget.notes.index;
@@ -45,6 +43,9 @@ class _NoteDetailViewState extends State<NoteDetailView> {
 
   @override
   Widget build(BuildContext context) {
+
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Hero(tag: widget.notes.index, child: Text(_note.title)),
@@ -115,9 +116,6 @@ class _NoteDetailViewState extends State<NoteDetailView> {
                   return Container(alignment: Alignment.center, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue), strokeWidth: 2.00));
                 }
           }),
-          Container(
-              child: Visibility(
-                  visible: _isDeleting, child: Container(alignment:Alignment.center, color: Colors.black12, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(widget.notes.color))))),
           Visibility(visible: _isEditing, child: Container(
             alignment: Alignment.bottomCenter,
             child: TextField(
@@ -181,6 +179,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
   }
 
   _fabOnPressed(BuildContext context) async{
+    final theme = Theme.of(context);
     showDialog(
         context: context,
         builder: (context) {
@@ -192,7 +191,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
               FlatButton(onPressed: () async{
                   Navigator.of(context).pop();
                   await deleteNote(context, _note);
-                }, child: Text("Delete", style: TextStyle(color: Theme.of(context).primaryColor))),
+                }, child: Text("Delete", style: TextStyle(color: theme.primaryColor))),
             ],
           );
         }

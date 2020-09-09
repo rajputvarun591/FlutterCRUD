@@ -50,7 +50,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
   }
 
   Stream<NotesState> _mapAddNoteToEvent(AddNote event) async*{
-    yield NotesLoading();
+    //yield NotesLoading();
     try {
       final response = await _notesService.addNote(notes: event.notes);
       if (response == 0) {
@@ -69,7 +69,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
   }
 
   Stream<NotesState> _mapUpdateNoteToEvent(UpdateNote event) async*{
-    yield NotesLoading();
+    //yield NotesLoading();
     try {
       final response = await _notesService.updateNote(notes: event.notes);
       if (response == 0) {
@@ -107,7 +107,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState>{
   }
 
   Stream<NotesState> _mapSortNotesToEvent(SortNotes event) async*{
-    yield NotesLoading();
+    //yield NotesLoading();
     try{
       final List<Notes> list = await _notesService.getNotes(columnName: event.columnName, order: event.order);
       if(list.isNotEmpty) {
