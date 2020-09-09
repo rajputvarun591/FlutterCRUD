@@ -27,6 +27,8 @@ dependencies:
   meta: ^1.1.6
   equatable: ^1.0.2
   package_info: ^0.4.3
+  pdf: ^1.11.0
+  permission_handler: ^5.0.1+1
 
 
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
@@ -5,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/blocs/notes/notes_bloc.dart';
 import 'package:notes/database_tables_models/notes.dart';
+import 'package:notes/models/models.dart';
 import 'package:notes/models/order.dart';
+import 'package:notes/views/widgets/save_pdf.dart';
 
 class NoteDetailView extends StatefulWidget {
   final Notes notes;
@@ -21,14 +25,14 @@ class _NoteDetailViewState extends State<NoteDetailView> {
   bool _isEditing;
   bool _hasText;
 
-  Notes _note;
+  Notes note;
 
   int _index;
 
   FocusNode _focusNode;
 
   TextEditingController _tEController;
-
+  final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -36,9 +40,9 @@ class _NoteDetailViewState extends State<NoteDetailView> {
     _isEditing= false;
     _hasText = false;
     _index = widget.notes.index;
-    _note = widget.notes;
+    note = widget.notes;
     _focusNode = FocusNode();
-    _tEController = TextEditingController(text: _note.content);
+    _tEController = TextEditingController(text: note.content);
   }
 
   @override
@@ -47,11 +51,25 @@ class _NoteDetailViewState extends State<NoteDetailView> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
-        title: Hero(tag: widget.notes.index, child: Text(_note.title)),
+        title: Hero(tag: widget.notes.index, child: Text(note.title)),
         backgroundColor: widget.notes.color,
         actions: [
-          IconButton(icon: Icon(Icons.info_outline), onPressed: (){
+          IconButton(icon: Icon(Icons.file_download), tooltip: "Save as PDF" ,onPressed: () async{
+            await showDialog(context: context,
+              builder: (context) {
+                return SavePdf(note: note);
+              }
+          ).then((value) {
+            if (value != null){
+              scaffoldKey.currentState.showSnackBar(
+                SnackBar(content: Text("File Downloaded!"), duration: Duration(seconds: 3), backgroundColor: Colors.green)
+              );
+            }
+          });
+    }),
+          IconButton(icon: Icon(Icons.info_outline), tooltip: "Details", onPressed: (){
             showDialog(
                 context: context,
               builder: (context){
@@ -72,7 +90,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
                   );
               }
             );
-          })
+          }),
         ],
       ),
       body: Stack(
@@ -140,7 +158,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
               onSubmitted: (value) async{
                 if(value.isNotEmpty) {
                   Notes notes = Notes.update(
-                    _note.id,
+                    note.id,
                     "${value.split(" ")[0]} ${value.split(" ")[1]}",
                     value,
                     DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
@@ -190,7 +208,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
               FlatButton(onPressed: (){Navigator.of(context).pop();}, child: Text("Cancel")),
               FlatButton(onPressed: () async{
                   Navigator.of(context).pop();
-                  await deleteNote(context, _note);
+                  await deleteNote(context, note);
                 }, child: Text("Delete", style: TextStyle(color: theme.primaryColor))),
             ],
           );
