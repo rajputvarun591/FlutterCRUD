@@ -3,12 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/blocs/notes/notes_bloc.dart';
-import 'package:notes/database_helper/database_helper.dart';
-import 'package:notes/database_tables_models/database_tables_models.dart';
 import 'package:intl/intl.dart';
+import 'package:notes/database_tables_models/database_tables_models.dart';
 import 'package:notes/models/models.dart';
-import 'package:notes/views/custom_popup_menu_button/custom_popup_menu_button.dart';
-import 'package:notes/views/search_notes/search_notes.dart';
 
 import 'navigation_drawer/navigation_drawer.dart';
 import 'widgets/widgets.dart';
@@ -20,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
 
-  bool _isGrid;
   bool _isAdding;
   bool _hasText;
 
@@ -37,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
     _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 400))..addListener(() {setState(() {});});
     _progress = Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(parent: _animationController, curve: Interval(0.0, 0.75, curve: Curves.linear)));
     super.initState();
-    _isGrid = false;
     _isAdding =false;
     _hasText = false;
     _focusNode = FocusNode();
@@ -188,14 +183,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
             strokeWidth: 2.00
         )
     );
-  }
-
-  void _gridTransect() {
-    _animationController.reverse();
-  }
-
-  void _listTransect() {
-    _animationController.forward();
   }
 
 }

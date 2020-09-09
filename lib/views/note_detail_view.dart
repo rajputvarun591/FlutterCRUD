@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -48,8 +49,6 @@ class _NoteDetailViewState extends State<NoteDetailView> {
   @override
   Widget build(BuildContext context) {
 
-    final theme = Theme.of(context);
-
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -64,7 +63,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
           ).then((value) {
             if (value != null){
               scaffoldKey.currentState.showSnackBar(
-                SnackBar(content: Text("File Downloaded!"), duration: Duration(seconds: 3), backgroundColor: Colors.green)
+                SnackBar(content: Text("File Downloaded !"), duration: Duration(seconds: 3), backgroundColor: note.color)
               );
             }
           });
