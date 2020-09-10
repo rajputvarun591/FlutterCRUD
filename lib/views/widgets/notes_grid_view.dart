@@ -144,6 +144,7 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
                       Navigator.pushNamed(context, RoutePaths.noteDetailsRoute, arguments: notes);
                     });
                   },
+                  onDoubleTap: (){},
                 ),
               ),
             );

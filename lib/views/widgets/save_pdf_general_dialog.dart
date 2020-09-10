@@ -87,7 +87,7 @@ class _SavePdfGeneralDialogState extends State<SavePdfGeneralDialog> {
                   Divider(),
                   SizedBox(height: 10.00),
                   Container(padding: EdgeInsets.only(bottom: 5.00), child: Text("Enter File Name", style: TextStyle(fontSize: 18.00))),
-                  Container(height: 40.00, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(5.00)), boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 1.00, blurRadius: 1.00, offset: Offset(0.0, 0.1))]), child: TextField(
+                  Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(5.00)), boxShadow: [BoxShadow(color: Colors.black12, spreadRadius: 1.00, blurRadius: 1.00, offset: Offset(0.0, 0.1))]), child: TextField(
                     controller: textEditingController,
                     textAlign: TextAlign.left,
                     textCapitalization: TextCapitalization.sentences,
@@ -139,7 +139,20 @@ class _SavePdfGeneralDialogState extends State<SavePdfGeneralDialog> {
                       SizedBox(width: 20.00),
                       FlatButton.icon(
                           onPressed: () async{
-                            Navigator.pop(context, await saveFileAsPDF(textEditingController.text, widget.note, format, orientation));
+                            await Permission.storage.request().then((value) async{
+                              if(value.isGranted) {
+                                Navigator.pop(context, await saveFileAsPDF(textEditingController.text.isEmpty ? "No_Name" : textEditingController.text, widget.note, format, orientation));
+                              } else if (value.isDenied) {
+                                Navigator.of(context).pop();
+                              } else if(value.isPermanentlyDenied) {
+                                showDialog(context: context, builder: (context){
+                                  return AlertDialog(
+                                    title: Text("Permission", style: TextStyle(color: Colors.red)),
+                                    content: Text("Please goto settings and give storage permission manually to save the files."),
+                                  );
+                                });
+                              }
+                            });
                           },
                           color: Colors.blue,
                           icon: Icon(Icons.file_download, color: Colors.white),
@@ -159,72 +172,56 @@ class _SavePdfGeneralDialogState extends State<SavePdfGeneralDialog> {
 
   FutureOr<File> saveFileAsPDF(String fileName, Notes note, PdfPageFormat pageFormat, PdfWidget.PageOrientation pageOrientation) async{
     PdfWidget.Font font = PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf"));
-
-    PermissionStatus status = await Permission.storage.status;
     File savedFile;
-    if (status.isUndetermined) await Permission.storage.request();
-    if (status.isDenied) await Permission.storage.request();
-    if (status.isPermanentlyDenied) {
-      showDialog(context: context, builder: (context){
-        return AlertDialog(
-          title: Text("Permission", style: TextStyle(color: Colors.red)),
-          content: Text("Please goto settings and give storage permission manually to save the files."),
-        );
-      });
-    }
-    if (status.isGranted) {
-      Directory directory = await AppDirectory.getExternalStorageDirectory();
-      String path = directory.path;
-      final pdf = PdfWidget.Document();
-      pdf.addPage(PdfWidget.Page(
-          pageFormat: pageFormat,
-          margin: PdfWidget.EdgeInsets.all(15.00),
-          orientation: pageOrientation,
-          theme: PdfWidget.ThemeData.withFont(
-            base: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
-            bold: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
-            italic: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
-            boldItalic: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
-          ),
-          build: (PdfWidget.Context context){
-            return PdfWidget.Column(
-                mainAxisAlignment: PdfWidget.MainAxisAlignment.start,
-                crossAxisAlignment: PdfWidget.CrossAxisAlignment.start,
-                children: [
-                  PdfWidget.Container(
-                      padding: PdfWidget.EdgeInsets.all(10.00),
-                      child: PdfWidget.Text('${note.title}', style: PdfWidget.TextStyle(fontSize: 25.00, fontWeight: PdfWidget.FontWeight.normal, font: font))
-                  ),
-                  PdfWidget.Container(
-                      alignment: PdfWidget.Alignment.centerLeft,
-                      padding: PdfWidget.EdgeInsets.all(20.00),
-                      child: PdfWidget.Text('${note.content}', style: PdfWidget.TextStyle(fontSize: 18.00, fontWeight: PdfWidget.FontWeight.normal, font: font))
-                  ),
-                  PdfWidget.Expanded(child: PdfWidget.Container()),
-                  PdfWidget.Divider(),
-                  PdfWidget.Footer(
-                      padding: PdfWidget.EdgeInsets.all(10.00),
-                      trailing: PdfWidget.Text('${note.dateModified}', style: PdfWidget.TextStyle(fontSize: 15.00, color: PdfColor.fromHex("808080"), fontWeight: PdfWidget.FontWeight.normal, font: font))
-                  ),
-                ]
-            );
-          }
-      ));
-      bool exist = await Directory('${path.split("Android")[0]}MyNotes/').exists();
-      if(exist) {
-        File pdfFile = File("${path.split("Android")[0]}MyNotes/$fileName.pdf");
-        savedFile = await pdfFile.writeAsBytes(pdf.save());
-        return(savedFile);
-      } else {
-        File pdfFile = File("${path.split("Android")[0]}MyNotes/$fileName.pdf");
-        savedFile = await pdfFile.writeAsBytes(pdf.save()).catchError((onError){
-          Directory("${path.split("Android")[0]}MyNotes").create(recursive: true);
-          pdfFile.writeAsBytes(pdf.save());
-          return(savedFile);
-        });
-      }
+    Directory directory = await AppDirectory.getExternalStorageDirectory();
+    String path = directory.path;
+    final pdf = PdfWidget.Document();
+    pdf.addPage(PdfWidget.Page(
+        pageFormat: pageFormat,
+        margin: PdfWidget.EdgeInsets.all(15.00),
+        orientation: pageOrientation,
+        theme: PdfWidget.ThemeData.withFont(
+          base: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
+          bold: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
+          italic: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
+          boldItalic: PdfWidget.Font.ttf(await rootBundle.load("fonts/Raleway-Medium.ttf")),
+        ),
+        build: (PdfWidget.Context context){
+          return PdfWidget.Column(
+              mainAxisAlignment: PdfWidget.MainAxisAlignment.start,
+              crossAxisAlignment: PdfWidget.CrossAxisAlignment.start,
+              children: [
+                PdfWidget.Container(
+                    padding: PdfWidget.EdgeInsets.all(10.00),
+                    child: PdfWidget.Text('${note.title}', style: PdfWidget.TextStyle(fontSize: 25.00, fontWeight: PdfWidget.FontWeight.normal, font: font))
+                ),
+                PdfWidget.Container(
+                    alignment: PdfWidget.Alignment.centerLeft,
+                    padding: PdfWidget.EdgeInsets.all(20.00),
+                    child: PdfWidget.Text('${note.content}', style: PdfWidget.TextStyle(fontSize: 18.00, fontWeight: PdfWidget.FontWeight.normal, font: font))
+                ),
+                PdfWidget.Expanded(child: PdfWidget.Container()),
+                PdfWidget.Divider(),
+                PdfWidget.Footer(
+                    padding: PdfWidget.EdgeInsets.all(10.00),
+                    trailing: PdfWidget.Text('${note.dateModified}', style: PdfWidget.TextStyle(fontSize: 15.00, color: PdfColor.fromHex("808080"), fontWeight: PdfWidget.FontWeight.normal, font: font))
+                ),
+              ]
+          );
+        }
+    ));
+    bool exist = await Directory('${path.split("Android")[0]}MyNotes/').exists();
+    if(exist) {
+      File pdfFile = File("${path.split("Android")[0]}MyNotes/$fileName.pdf");
+      savedFile = await pdfFile.writeAsBytes(pdf.save());
+      return(savedFile);
     } else {
-      return savedFile;
+      File pdfFile = File("${path.split("Android")[0]}MyNotes/$fileName.pdf");
+      savedFile = await pdfFile.writeAsBytes(pdf.save()).catchError((onError){
+        Directory("${path.split("Android")[0]}MyNotes").create(recursive: true);
+        pdfFile.writeAsBytes(pdf.save());
+        return(savedFile);
+      });
     }
   }
 }
