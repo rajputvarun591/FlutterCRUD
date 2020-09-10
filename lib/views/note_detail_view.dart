@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +9,7 @@ import 'package:notes/blocs/notes/notes_bloc.dart';
 import 'package:notes/database_tables_models/notes.dart';
 import 'package:notes/models/models.dart';
 import 'package:notes/models/order.dart';
-import 'package:notes/views/widgets/save_pdf.dart';
+import 'package:notes/views/widgets/save_pdf_general_dialog.dart';
 
 class NoteDetailView extends StatefulWidget {
   final Notes notes;
@@ -56,9 +55,13 @@ class _NoteDetailViewState extends State<NoteDetailView> {
         backgroundColor: widget.notes.color,
         actions: [
           IconButton(icon: Icon(Icons.file_download), tooltip: "Save as PDF" ,onPressed: () async{
-            await showDialog(context: context,
-              builder: (context) {
-                return SavePdf(note: note);
+            await showGeneralDialog(context: context,
+              barrierDismissible: true,
+              barrierColor: Colors.black45,
+              barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                transitionDuration: const Duration(milliseconds: 200),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return SavePdfGeneralDialog(note: note);
               }
           ).then((value) {
             if (value != null){
