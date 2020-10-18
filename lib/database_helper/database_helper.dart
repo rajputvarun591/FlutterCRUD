@@ -41,7 +41,7 @@ class DatabaseHelper {
 
   Future<List<Notes>> getNotes(int limit, int offSet, String columnName, String order) async {
     var dbClient = await database;
-    List<dynamic> response = await dbClient.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified, Notes.columnFavorite], orderBy: "$columnName $order");
+    List<dynamic> response = await dbClient.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified, Notes.columnFavorite], where: "${Notes.columnDelAction} = ?" , whereArgs: ["no"], orderBy: "$columnName $order");
     if(response.isEmpty) return [];
     List<Notes> notesList = response.map((e) => Notes.fromMap(e)).toList();
     return notesList;
@@ -93,6 +93,20 @@ class DatabaseHelper {
   Future<int> updateFavoriteStatus(Notes notes) async{
     var db = await database;
     int response = await db.update(Notes.tableName, notes.toMapForFavorite(), where: "${Notes.columnId} = ?", whereArgs: [notes.id]);
+    return response;
+  }
+
+  Future<List<Notes>> getTrashList(String columnName, String order) async{
+    var dbClient = await database;
+    List<dynamic> response = await dbClient.query("${Notes.tableName}", columns: [Notes.columnId, Notes.columnTitle, Notes.columnContent, Notes.columnDateTime, Notes.columnDateModified, Notes.columnFavorite], where: "delAction = ?" , whereArgs: ["yes"], orderBy: "$columnName $order");
+    if(response.isEmpty) return [];
+    List<Notes> notesList = response.map((e) => Notes.fromMap(e)).toList();
+    return notesList;
+  }
+
+  Future<int> updateDelAction(Notes notes) async{
+    var db = await database;
+    int response = await db.update(Notes.tableName, notes.toMapForDelAction(), where: "${Notes.columnId} = ?", whereArgs: [notes.id]);
     return response;
   }
 

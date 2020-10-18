@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/blocs/notes/notes.dart';
+import 'package:notes/database_helper/database_helper.dart';
+import 'package:notes/database_tables_models/database_tables_models.dart';
+import 'package:notes/models/models.dart';
 import 'package:notes/router/constants.dart';
 import 'package:notes/views/profile.dart';
+import 'package:notes/views/widgets/custom_work_sheet.dart';
 import 'package:package_info/package_info.dart';
 
 class NavigationDrawer extends StatefulWidget {
@@ -63,40 +69,54 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
             child: Container(
               color: Colors.transparent,
               child: ListView(
+                shrinkWrap: true,
                 physics: BouncingScrollPhysics(),
                 children: <Widget>[
                   ListTile(
                     title: Text("Profile", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey)),
                     leading: Icon(Icons.person, color: Theme.of(context).primaryColor),
-                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    trailing: Icon(Icons.keyboard_arrow_right, color: Colors.grey),
                     onTap: (){
                       Navigator.of(context).pop();
                       Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProfileView()));
                     },
                   ),
-                  Divider(),
+                  Divider(height: 2.00),
                   ListTile(
                     title: Text("Support", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey)),
                     leading: Icon(Icons.help, color: Theme.of(context).primaryColor),
-                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    trailing: Icon(Icons.keyboard_arrow_right, color: Colors.grey),
                     onTap: (){
                       Navigator.of(context).pop();
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => CustomWorkSheet()));
                     },
                   ),
+                  Divider(height: 2.00),
                   ListTile(
                     title: Text("Settings", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey)),
                     leading: Icon(Icons.settings, color: Theme.of(context).primaryColor),
-                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    trailing: Icon(Icons.keyboard_arrow_right, color: Colors.grey),
                     onTap: (){
                       Navigator.of(context).pop();
                       Navigator.pushNamed(context, RoutePaths.settingsRoute);
                     },
                   ),
-                  Divider(),
+                  Divider(height: 2.00),
+                  ListTile(
+                    title: Text("Trash Bin", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey)),
+                    leading: Icon(Icons.delete, color: Theme.of(context).primaryColor),
+                    trailing: Icon(Icons.keyboard_arrow_right, color: Colors.grey),
+                    onTap: () async{
+                      Navigator.of(context).pop();
+                      List<Notes> trash = await DatabaseHelper().getTrashList(Notes.columnDateModified, Order.descending);
+                      Navigator.pushNamed(context, RoutePaths.trashBinRoute, arguments: trash);
+                    },
+                  ),
+                  Divider(height: 2.00),
                   ListTile(
                     title: Text("About Us", style: TextStyle(fontSize: 20.00, color: Colors.blueGrey)),
                     leading: Icon(Icons.info_outline, color: Theme.of(context).primaryColor),
-                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    trailing: Icon(Icons.keyboard_arrow_right, color: Colors.grey),
                     onTap: () async{
                       PackageInfo info = await PackageInfo.fromPlatform();
                       Navigator.of(context).pop();
@@ -127,7 +147,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                       );
                     },
                   ),
-                  Divider(),
+                  Divider(height: 2.00),
                   Container(
                     padding: EdgeInsets.all(10.00),
                       child: Column(
@@ -141,7 +161,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                         ],
                       )
                   ),
-                  Divider(),
+                  Divider(height: 2.00),
                 ],
               ),
             ),

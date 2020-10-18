@@ -9,36 +9,50 @@ abstract class NotesState extends Equatable {
   List<Object> get props => [];
 }
 
-class InitialState extends NotesState{}
+class InitialState extends NotesState {}
 
-class LoadNotes extends NotesState {
+class NotesLoading extends NotesState {}
+
+class NotesLoaded extends NotesState {
   final List<Notes> notes;
-  LoadNotes({@required this.notes});
+  final bool hasReachMAx;
+  final String sortBy;
+  final String orderBy;
+
+  NotesLoaded({@required this.notes, @required this.hasReachMAx, this.sortBy, this.orderBy});
+
+  NotesLoaded copyWith(List<Notes> notes, bool hasReachMax, String sortBy, String orderBy) {
+    return NotesLoaded(
+        notes: notes ?? this.notes,
+        hasReachMAx: hasReachMax ?? this.hasReachMAx,
+        sortBy: sortBy ?? this.sortBy,
+        orderBy: orderBy ?? this.orderBy);
+  }
 
   @override
-  List<Object> get props => [notes];
+  List<Object> get props => [notes, hasReachMAx];
 }
 
-class NotesLoading extends NotesState{}
-
-class NotesLoaded extends NotesState{
-  final List<Notes> notes;
-  NotesLoaded({@required this.notes});
-
-  @override
-  List<Object> get props => [notes];
-}
-
-class ZeroNotesFound extends NotesState{
+class NotesFailure extends NotesState {
   final String message;
-  ZeroNotesFound({@required this.message});
+
+  NotesFailure({@required this.message});
 
   List<Object> get props => [message];
 }
 
-class Failure extends NotesState{
+class TrashLoaded extends NotesState {
+  final List<Notes> notes;
+
+  TrashLoaded({@required this.notes});
+
+  List<Object> get props => [notes];
+}
+
+class ZeroTrashFound extends NotesState {
   final String message;
-  Failure({@required this.message});
+
+  ZeroTrashFound({@required this.message});
 
   List<Object> get props => [message];
 }

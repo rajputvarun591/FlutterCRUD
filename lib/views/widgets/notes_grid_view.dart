@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:meta/meta.dart';
 import 'package:notes/database_tables_models/notes.dart';
-import 'package:notes/models/models.dart';
 import 'package:notes/router/constants.dart';
 
 class NotesGridView extends StatefulWidget {
@@ -21,18 +20,26 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
   AnimationController _animationController;
   Animation<Offset> _animation;
 
+  ScrollController _scrollController;
+  final _scrollThreshold = 200.00;
+
+  NotesBloc _bloc;
+
 
   @override
   void initState() {
     _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     _animation = Tween<Offset>(begin: Offset(0.0, 3.0), end: Offset.zero).animate(CurvedAnimation(parent: _animationController, curve: Curves.bounceInOut));
     super.initState();
+    _scrollController = ScrollController()..addListener(_onScroll);
+    _bloc = BlocProvider.of<NotesBloc>(context);
   }
 
 
   @override
   void dispose() {
     _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -43,7 +50,7 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
     final theme = Theme.of(context);
 
     return Container(
-        child: GridView.count(
+        child: widget.state.notes.isEmpty ? _zeroNotesFound(context) : GridView.count(
           padding: EdgeInsets.all(15.00),
           physics: BouncingScrollPhysics(),
           crossAxisCount: 2,
@@ -76,7 +83,7 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
                           children: [
                             Container(
                                 child: Hero(
-                                    tag: index,
+                                    tag: widget.state.notes[index].id,
                                     transitionOnUserGestures: true,
                                     flightShuttleBuilder: (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
                                       return DefaultTextStyle(
@@ -124,13 +131,13 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
                         alignment: Alignment.topRight,
                         child: IconButton(icon: widget.state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey) : Icon(Icons.favorite),  onPressed: () {
                           Notes notes = Notes.updateFavoriteStatus(widget.state.notes[index].id, widget.state.notes[index].favorite == "no" ? "yes" : "no");
-                          BlocProvider.of<NotesBloc>(context).add(UpdateFavoriteStatus(notes: notes, columnName: Notes.columnDateModified, order: Order.descending));
+                          _bloc.add(UpdateFavoriteStatus(notes: notes));
                         }),
                       )
                     ],
                   ),
                   onTap: () {
-                    Future.delayed(Duration(milliseconds: 200), (){
+                    Future.delayed(Duration(milliseconds: 200), () async{
                       Notes notes = Notes.forView(
                           widget.state.notes[index].id,
                           widget.state.notes[index].title,
@@ -141,7 +148,14 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
                           index.isEven
                               ? theme.primaryColorDark
                               : theme.primaryColorLight);
-                      Navigator.pushNamed(context, RoutePaths.noteDetailsRoute, arguments: notes);
+                      int result = await Navigator.pushNamed(context, RoutePaths.noteDetailsRoute, arguments: notes);
+                      if(result == 1) {
+                        Scaffold.of(context)..removeCurrentSnackBar()..showSnackBar(
+                            SnackBar(content: Text("Moved To Trash !"),
+                                duration: Duration(seconds: 3),
+                                backgroundColor: Colors.red)
+                        );
+                      }
                     });
                   },
                   onDoubleTap: (){},
@@ -151,6 +165,42 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
           }
           ),
         )
+    );
+  }
+
+  void _onScroll() {
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    if (maxScroll == currentScroll) {
+      _bloc.add(ShowNotes(sortBy: widget.state.sortBy, orderBy: widget.state.orderBy, offSet: widget.state.notes.length, limit: 8));
+    }
+  }
+
+  Widget _zeroNotesFound(BuildContext context) {
+    return Container(
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.style, color: Theme.of(context).primaryColor, size: 50.00),
+            SizedBox(height: 15.00),
+            Text("Empty Notes! Add Some.", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 25.00)),
+          ],
+        )
+    );
+  }
+}
+
+class BottomLoader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(Colors.blue),
+          strokeWidth: 1.5,
+        ),
+      ),
     );
   }
 }

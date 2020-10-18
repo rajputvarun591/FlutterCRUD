@@ -8,6 +8,7 @@ class Notes {
   static final String columnTitle = 'title';
   static final String columnContent = 'content';
   static final String columnFavorite = 'favorite';
+  static final String columnDelAction = 'delAction';
 
   static final String createTable = "CREATE TABLE $tableName ("
       "$columnId INTEGER PRIMARY KEY,"
@@ -15,7 +16,8 @@ class Notes {
       "$columnDateModified TEXT,"
       "$columnTitle TEXT ,"
       "$columnFavorite TEXT ,"
-      "$columnContent TEXT "
+      "$columnContent TEXT ,"
+      "$columnDelAction TEXT"
       ")";
 
   int id;
@@ -26,13 +28,16 @@ class Notes {
   String favorite;
   Color color;
   int index;
+  String delAction;
 
 
-  Notes(this.dateTime, this.title, this.content, this.dateModified, this.favorite);
+  Notes(this.dateTime, this.title, this.content, this.dateModified, this.favorite, this.delAction);
 
   Notes.update(this.id, this.title, this.content, this.dateModified);
 
   Notes.updateFavoriteStatus(this.id, this.favorite);
+
+  Notes.updateDelAction(this.id, this.delAction);
 
   Notes.forView(this.id, this.title, this.content, this.dateTime, this.dateModified, this.index, this.color);
 
@@ -44,6 +49,7 @@ class Notes {
     map['title'] = title;
     map['content'] = content;
     map['favorite'] = favorite;
+    map['delAction'] = delAction;
     return map;
   }
 
@@ -64,12 +70,20 @@ class Notes {
     this.title = map['title'];
     this.content = map['content'];
     this.favorite = map['favorite'];
+    this.delAction = map['delAction'];
   }
 
   Map<String, dynamic> toMapForFavorite() {
     var map = new Map<String, dynamic>();
     map['id'] = id;
     map['favorite'] = favorite;
+    return map;
+  }
+
+  Map<String, dynamic> toMapForDelAction() {
+    var map = new Map<String, dynamic>();
+    map['id'] = id;
+    map['delAction'] = delAction;
     return map;
   }
 }

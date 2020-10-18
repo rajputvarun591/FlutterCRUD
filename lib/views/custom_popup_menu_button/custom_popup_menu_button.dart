@@ -14,6 +14,7 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
   List<CustomPopupMenuModel> _customPopupMenuModel;
   int _value;
 
+  NotesBloc _bloc;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
       CustomPopupMenuModel(Icons.favorite_border, "UnFavorite", 6)
     ];
     _value = 2;
+    _bloc = BlocProvider.of<NotesBloc>(context);
   }
 
   @override
@@ -57,32 +59,32 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
       padding: EdgeInsets.all(10.00),
       onSelected: (value) async{
         if(value == 1) {
-          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnDateModified, order: Order.ascending));
+          _bloc.add(ShowNotes(sortBy: Notes.columnDateModified, orderBy: Order.ascending));
           setState(() {
             _value = value;
           });
         } else if(value == 2 ) {
-          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnDateModified, order: Order.descending));
+          _bloc.add(ShowNotes(sortBy: Notes.columnDateModified, orderBy: Order.descending));
           setState(() {
             _value = value;
           });
         } else if(value == 3 ) {
-          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnTitle, order: Order.ascending));
+          _bloc.add(ShowNotes(sortBy: Notes.columnTitle, orderBy: Order.ascending));
           setState(() {
             _value = value;
           });
         } else if(value == 4 ) {
-          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnTitle, order: Order.descending));
+          _bloc.add(ShowNotes(sortBy: Notes.columnTitle, orderBy: Order.descending));
           setState(() {
             _value = value;
           });
         } else if(value == 5 ) {
-          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnFavorite, order: Order.descending));
+          _bloc.add(ShowNotes(sortBy: Notes.columnFavorite, orderBy: Order.descending));
           setState(() {
             _value = value;
           });
         } else if(value == 6 ) {
-          BlocProvider.of<NotesBloc>(context).add(SortNotes(columnName: Notes.columnFavorite, order: Order.ascending));
+          _bloc.add(ShowNotes(sortBy: Notes.columnFavorite, orderBy: Order.ascending));
           setState(() {
             _value = value;
           });
@@ -95,7 +97,6 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
   @override
   void dispose() {
     super.dispose();
-    final bloc = BlocProvider.of<NotesBloc>(context);
-    bloc.close();
+    _bloc.close();
   }
 }

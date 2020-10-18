@@ -10,21 +10,21 @@ abstract class NotesEvent extends Equatable {
 }
 
 class ShowNotes extends NotesEvent{
-  final List<Notes> notes;
-  final String columnName;
-  final String order;
-  ShowNotes({@required this.notes, @required this.columnName, @required this.order});
+  final String sortBy;
+  final String orderBy;
+  final int limit;
+  final int offSet;
+
+  ShowNotes({@required this.sortBy, @required this.orderBy, this.limit, this.offSet});
 
   @override
-  List<Object> get props => [notes];
+  List<Object> get props => [];
 }
 
 class AddNote extends NotesEvent{
   final Notes notes;
-  final String columnName;
-  final String order;
 
-  AddNote({@required this.notes, @required this.columnName, @required this.order});
+  AddNote({@required this.notes});
 
   @override
   List<Object> get props => [notes];
@@ -32,10 +32,8 @@ class AddNote extends NotesEvent{
 
 class DeleteNote extends NotesEvent{
   final Notes notes;
-  final String columnName;
-  final String order;
 
-  DeleteNote({@required this.notes, @required this.columnName, @required this.order});
+  DeleteNote({@required this.notes});
 
   @override
   List<Object> get props => [notes];
@@ -44,10 +42,8 @@ class DeleteNote extends NotesEvent{
 
 class UpdateNote extends NotesEvent{
   final Notes notes;
-  final String columnName;
-  final String order;
 
-  UpdateNote({@required this.notes, @required this.columnName, @required this.order});
+  UpdateNote({@required this.notes});
 
   @override
   List<Object> get props => [notes];
@@ -55,10 +51,8 @@ class UpdateNote extends NotesEvent{
 
 class UpdateFavoriteStatus extends NotesEvent{
   final Notes notes;
-  final String columnName;
-  final String order;
 
-  UpdateFavoriteStatus({@required this.notes, @required this.columnName, @required this.order});
+  UpdateFavoriteStatus({@required this.notes});
 
   @override
   List<Object> get props => [notes];
@@ -72,5 +66,32 @@ class SortNotes extends NotesEvent{
 
   @override
   List<Object> get props => [columnName, order];
+}
+
+class LoadTrash extends NotesEvent{
+  final List<Notes> notes;
+  final String columnName;
+  final String order;
+
+  LoadTrash({@required this.notes, @required this.columnName, @required this.order});
+
+  @override
+  List<Object> get props => [notes];
+}
+
+class MoveToTrash extends NotesEvent{
+  final Notes note;
+
+  MoveToTrash({@required this.note});
+
+  List<Object> get props => [note];
+}
+
+class RestoreFromTrash extends NotesEvent{
+  final Notes note;
+
+  RestoreFromTrash({@required this.note});
+
+  List<Object> get props => [note];
 }
 
