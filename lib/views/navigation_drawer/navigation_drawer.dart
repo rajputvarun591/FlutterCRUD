@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/database_helper/database_helper.dart';
 import 'package:notes/database_tables_models/database_tables_models.dart';
 import 'package:notes/models/models.dart';

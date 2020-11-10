@@ -157,6 +157,4 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     }
   }
 
-  bool _hasReachedMax(NotesState state) => state is NotesLoaded && state.hasReachMAx;
-
 }

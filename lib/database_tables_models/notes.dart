@@ -9,6 +9,7 @@ class Notes {
   static final String columnContent = 'content';
   static final String columnFavorite = 'favorite';
   static final String columnDelAction = 'delAction';
+  static final String columnUserId = 'user_id';
 
   static final String createTable = "CREATE TABLE $tableName ("
       "$columnId INTEGER PRIMARY KEY,"
@@ -17,7 +18,8 @@ class Notes {
       "$columnTitle TEXT ,"
       "$columnFavorite TEXT ,"
       "$columnContent TEXT ,"
-      "$columnDelAction TEXT"
+      "$columnDelAction TEXT, "
+      "$columnUserId TEXT"
       ")";
 
   int id;

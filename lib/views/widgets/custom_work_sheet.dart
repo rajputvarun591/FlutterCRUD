@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 
 class CustomWorkSheet extends StatefulWidget {
@@ -9,7 +7,6 @@ class CustomWorkSheet extends StatefulWidget {
 
 class _CustomWorkSheetState extends State<CustomWorkSheet> {
 
-  AnimationController _animationController;
   List<BottomNavBarModel> list;
   int currentIndex = 3;
 
@@ -41,7 +38,6 @@ class _CustomWorkSheetState extends State<CustomWorkSheet> {
   }
 
   _bottom() {
-    final theme= Theme.of(context);
     final mediaQuery = MediaQuery.of(context);
     return CustomPaint(
       painter: MyCustomPainter(list.length, currentIndex),

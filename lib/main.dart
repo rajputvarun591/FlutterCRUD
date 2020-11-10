@@ -5,7 +5,7 @@ import 'package:notes/app_theme/app_theme.dart';
 import 'package:notes/blocs/notes/notes.dart';
 import 'package:notes/models/order.dart';
 import 'package:notes/router/constants.dart';
-import 'package:notes/router/router.dart';
+import 'package:notes/router/router.dart' as nav;
 import 'package:notes/services/services.dart';
 
 import 'database_tables_models/database_tables_models.dart';
@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.getRedTheme,
       home: HomeScreen(),
       initialRoute: RoutePaths.homeRoute,
-      onGenerateRoute: Router.generateRoute,
+      onGenerateRoute: nav.Router.generateRoute,
     );
   }
 }

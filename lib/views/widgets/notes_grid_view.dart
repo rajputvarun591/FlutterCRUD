@@ -21,7 +21,6 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
   Animation<Offset> _animation;
 
   ScrollController _scrollController;
-  final _scrollThreshold = 200.00;
 
   NotesBloc _bloc;
 
