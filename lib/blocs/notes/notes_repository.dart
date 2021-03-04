@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:notes/database_helper/database_helper.dart';
 import 'package:notes/database_tables_models/database_tables_models.dart';
 
-abstract class NotesService {
+abstract class NotesRepository {
   Future<List<Notes>> getNotes({@required String columnName, @required String order, @required int limit, @required int offSet});
   Future<Notes> loadSingleNote({@required int id});
   Future<int> updateNote({@required Notes notes});
@@ -14,7 +14,7 @@ abstract class NotesService {
   Future<Notes> getSingleNote({@required int noteId});
 }
 
-class NoteServiceImpl extends NotesService{
+class NotesRepositoryImpl extends NotesRepository{
   DatabaseHelper _databaseHelper = DatabaseHelper();
 
   @override

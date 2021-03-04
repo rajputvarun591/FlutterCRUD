@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:notes/enums/enums.dart';
 import 'package:notes/models/theme_model.dart';
 
 class AppTheme {
-
-  static final String blueTheme = "blueTheme";
-  static final String redTheme = "redTheme";
-  static final String tealTheme = "tealTheme";
-  static final String purpleTheme = "purpleTheme";
 
   static final ThemeData getBlueTheme = ThemeData(
     primaryColor: Colors.blue,
@@ -72,10 +68,10 @@ class AppTheme {
     fontFamily: "Raleway-Medium"
   );
 
-  static Future<ThemeModel> getTheme(String themeName) async {
-    if(themeName == AppTheme.blueTheme) return ThemeModel(themeData: AppTheme.getBlueTheme);
-    if(themeName == AppTheme.redTheme) return ThemeModel(themeData: AppTheme.getRedTheme);
-    if(themeName == AppTheme.tealTheme) return ThemeModel(themeData: AppTheme.getTealTheme);
+  static Future<ThemeModel> getTheme(ThemeEnum themeName) async {
+    if(themeName == ThemeEnum.BLUE) return ThemeModel(themeData: AppTheme.getBlueTheme);
+    if(themeName == ThemeEnum.RED) return ThemeModel(themeData: AppTheme.getRedTheme);
+    if(themeName == ThemeEnum.TEAL) return ThemeModel(themeData: AppTheme.getTealTheme);
     else return ThemeModel(themeData: AppTheme.getPurpleTheme);
   }
 }

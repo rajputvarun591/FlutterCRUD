@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
         child: Stack(
           children: [
             BlocBuilder(
-              bloc: _bloc,
+              cubit: _bloc,
                 builder: (context, state){
                   if(state is NotesLoaded){
                     return NotesGridView(state: state);

@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes/app_theme/app_theme.dart';
-import 'package:notes/services/theme_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/blocs/themes/theme_bloc.dart';
+import 'package:notes/blocs/themes/theme_bloc.dart';
+import 'package:notes/blocs/themes/theme_bloc.dart';
+import 'package:notes/blocs/themes/theme_bloc.dart';
+import 'package:notes/blocs/themes/themes_event.dart';
+import 'package:notes/blocs/themes/themes_event.dart';
+import 'package:notes/blocs/themes/themes_event.dart';
+import 'package:notes/blocs/themes/themes_event.dart';
+import 'package:notes/enums/enums.dart';
+import 'package:notes/enums/enums.dart';
+import 'package:notes/enums/enums.dart';
+import 'package:notes/enums/enums.dart';
 
 class Settings extends StatefulWidget {
   @override
@@ -26,7 +39,22 @@ class _SettingsState extends State<Settings> with TickerProviderStateMixin{
       ),
       body: Container(
         padding: EdgeInsets.all(15.00),
-        child: Text(""),
+        child: Column(
+          children: [
+            FlatButton.icon(onPressed: (){
+              BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: ThemeEnum.BLUE));
+            }, icon: Icon(Icons.color_lens), label: Text("BLUE")),
+            FlatButton.icon(onPressed: (){
+              BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: ThemeEnum.RED));
+            }, icon: Icon(Icons.color_lens), label: Text("RED")),
+            FlatButton.icon(onPressed: (){
+              BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: ThemeEnum.TEAL));
+            }, icon: Icon(Icons.color_lens), label: Text("TEAL")),
+            FlatButton.icon(onPressed: (){
+              BlocProvider.of<ThemeBloc>(context).add(ChangeTheme(themeName: ThemeEnum.PURPLE));
+            }, icon: Icon(Icons.color_lens), label: Text("PURPLE")),
+          ],
+        ),
       ),
     );
   }

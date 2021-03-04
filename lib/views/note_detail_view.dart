@@ -109,7 +109,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
       body: Stack(
         children: [
           BlocBuilder(
-              bloc: BlocProvider.of<NotesBloc>(context),
+            cubit: BlocProvider.of<NotesBloc>(context),
               builder: (context, state) {
                 if (state is NotesLoaded) {
                   return SingleChildScrollView(
@@ -179,7 +179,7 @@ class _NoteDetailViewState extends State<NoteDetailView> {
                     if (value.isNotEmpty) {
                       Notes notes = Notes.update(
                         _note.id,
-                        "${value.split(" ")[0]} ${value.split(" ")[1]}",
+                        "${value.contains(" ") ? "${value.split(" ")[0]} ${value.split(" ")[1]}" : "${value.split(" ")[0]}"}",
                         value,
                         DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
                       );

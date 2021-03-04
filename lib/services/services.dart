@@ -1,2 +1,1 @@
-export 'notes_service.dart';
-export 'theme_service.dart';
+export '../blocs/themes/theme_repository.dart';
