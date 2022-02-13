@@ -4,7 +4,7 @@
 #### 1. Add Notes in local Database & Mobile Memory using [SQFlite Package](https://pub.dev/packages/sqflite) package for flutter.
 #### 2. Edit and Delete Notes by tapping them.
 #### 3. You can enable Dark theme in the application.
-#### 4. Main Key point of the application that ypu can save your Note content in your Phone External Memory in PDF format for further share with anyone.
+#### 4. Main Key point of the application that you can save your Note content in your Phone External Memory in PDF format for further share with anyone.
 #### 5. PDF generation was achieved using [PDF Package](https://pub.dev/packages/pdf) for FLutter.
 
 
