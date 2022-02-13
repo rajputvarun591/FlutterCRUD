@@ -6,17 +6,19 @@ import 'package:notes/blocs/themes/themes.dart';
 class ThemeBloc extends Bloc<ThemesEvent, ThemesState> {
   final ThemeRepository repository;
 
-  ThemeBloc({@required this.repository}): assert(repository != null), super(ThemeInitialState());
+  ThemeBloc({@required this.repository})
+      : assert(repository != null),
+        super(ThemeInitialState());
 
   @override
-  Stream<ThemesState> mapEventToState(ThemesEvent event) async*{
-    if(event is ChangeTheme) {
+  Stream<ThemesState> mapEventToState(ThemesEvent event) async* {
+    if (event is ChangeTheme) {
       yield* _mapChangeThemeEventToState(event);
     }
   }
 
-  Stream<ThemesState> _mapChangeThemeEventToState(ChangeTheme event) async*{
-    final theme = await repository.getTheme(themeName: event.themeName);
+  Stream<ThemesState> _mapChangeThemeEventToState(ChangeTheme event) async* {
+    final theme = repository.getTheme(themeName: event.themeName);
     yield ThemeChanged(theme: theme);
   }
 }

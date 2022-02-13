@@ -15,4 +15,7 @@ class ThemeChanged extends ThemesState{
   final ThemeModel theme;
 
   ThemeChanged({@required this.theme});
+
+  @override
+  List<Object> get props => [theme];
 }

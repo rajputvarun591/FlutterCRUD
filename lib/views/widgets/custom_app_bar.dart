@@ -7,13 +7,11 @@ import 'package:notes/database_tables_models/database_tables_models.dart';
 import 'package:notes/views/custom_popup_menu_button/custom_popup_menu_button.dart';
 import 'package:notes/views/search_notes/search_notes.dart';
 
-class CustomAppBar extends StatelessWidget with PreferredSizeWidget{
-
+class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
   final Animation<double> progress;
   final AnimationController animationController;
 
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-
 
   CustomAppBar({@required this.progress, @required this.animationController});
 
@@ -34,13 +32,19 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget{
                 animationController.forward();
               }
             }),*/
-        IconButton(icon: Icon(Icons.search), onPressed: ()async{
-          List<Notes> list = await _databaseHelper.getAllNotes();
-          await showSearch<Notes>(
+        IconButton(
+          icon: Icon(Icons.search),
+          onPressed: () async {
+            List<Notes> list = await _databaseHelper.getAllNotes();
+            await showSearch<Notes>(
               context: context,
-              delegate: SearchNotes(bloc: BlocProvider.of<NotesBloc>(context), list: list)
-          );
-        }),
+              delegate: SearchNotes(
+                bloc: BlocProvider.of<NotesBloc>(context),
+                list: list,
+              ),
+            );
+          },
+        ),
         CustomPopupMenuButton()
       ],
     );

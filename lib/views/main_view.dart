@@ -14,8 +14,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
-
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isAdding;
   bool _hasText;
 
@@ -27,13 +26,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
   AnimationController _animationController;
   NotesBloc _bloc;
 
-
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 400))..addListener(() {setState(() {});});
-    _progress = Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(parent: _animationController, curve: Interval(0.0, 0.75, curve: Curves.linear)));
+    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 400))
+      ..addListener(() {
+        setState(() {});
+      });
+    _progress = Tween<double>(begin: 1.0, end: 0.0)
+        .animate(CurvedAnimation(parent: _animationController, curve: Interval(0.0, 0.75, curve: Curves.linear)));
     super.initState();
-    _isAdding =false;
+    _isAdding = false;
     _hasText = false;
     _focusNode = FocusNode();
     _tEController = TextEditingController();
@@ -42,11 +44,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: CustomAppBar(progress: _progress, animationController: _animationController),
       drawer: NavigationDrawer(),
       body: GestureDetector(
-        onTap: (){
+        onTap: () {
           setState(() {
             _isAdding = false;
           });
@@ -54,90 +57,107 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
         child: Stack(
           children: [
             BlocBuilder(
-              cubit: _bloc,
-                builder: (context, state){
-                  if(state is NotesLoaded){
+                cubit: _bloc,
+                builder: (context, state) {
+                  if (state is NotesLoaded) {
                     return NotesGridView(state: state);
-                  }
-                  else if (state is NotesLoading){
+                  } else if (state is NotesLoading) {
                     return _notesLoadingWidget(context);
-                  }
-                  else if (state is NotesFailure) {
+                  } else if (state is NotesFailure) {
                     return _failureWidget(context, state);
-                  }
-                  else {
+                  } else {
                     return _circularProgressIndicator(context);
                   }
-                }
-            ),
-            Visibility(visible: (_isAdding), child: Container(
-              alignment: Alignment.bottomCenter,
-              child: TextField(
-                decoration: InputDecoration(
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  suffixIcon: Visibility(visible: _hasText,child: IconButton(icon: Icon(Icons.clear, color: Colors.blueGrey), onPressed: () {
-                    _tEController.clear();
-                    setState(() {
-                      _hasText = false;
-                    });
-                  }))
+                }),
+            Visibility(
+              visible: (_isAdding),
+              child: Container(
+                alignment: Alignment.bottomCenter,
+                child: SafeArea(
+                  minimum: const EdgeInsets.all(10.00),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      filled: true,
+                      border: InputBorder.none,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.00),
+                        borderSide: BorderSide(
+                          width: 2.00,
+                          color: Theme.of(context).primaryColorLight,
+                        ),
+                      ),
+                      suffixIcon: Visibility(
+                        visible: _hasText,
+                        child: IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            _tEController.clear();
+                            setState(() {
+                              _hasText = false;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    style: theme.textTheme.headline6,
+                    autofocus: true,
+                    focusNode: _focusNode,
+                    controller: _tEController,
+                    textInputAction: TextInputAction.done,
+                    keyboardType: TextInputType.text,
+                    maxLengthEnforced: true,
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: null,
+                    onSubmitted: (value) async {
+                      if (value.isNotEmpty) {
+                        Notes notes = Notes(
+                          DateTime.now().toIso8601String(),
+                          "${value.contains(" ") ? "${value.split(" ")[0]} ${value.split(" ")[1]}" : "${value.split(" ")[0]}"}",
+                          value,
+                          DateTime.now().toIso8601String(),
+                          "no",
+                          "no",
+                        );
+                        _bloc.add(AddNote(notes: notes));
+                        _tEController.clear();
+                      }
+                    },
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        setState(() {
+                          _hasText = true;
+                        });
+                      }
+                    },
+                    onEditingComplete: () {
+                      setState(() {
+                        _isAdding = false;
+                      });
+                    },
+                  ),
                 ),
-                autofocus: true,
-                focusNode: _focusNode,
-                controller: _tEController,
-                textInputAction: TextInputAction.done,
-                keyboardType: TextInputType.text,
-                maxLengthEnforced: true,
-                textCapitalization: TextCapitalization.sentences,
-                maxLines: null,
-                onSubmitted: (value) async{
-                  if(value.isNotEmpty) {
-                    Notes notes = Notes(
-                      DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
-                      "${value.contains(" ") ? "${value.split(" ")[0]} ${value.split(" ")[1]}" : "${value.split(" ")[0]}"}",
-                      value,
-                      DateFormat("dd MMM yyyy hh:mm:ss:a").format(DateTime.now()),
-                      "no", "no"
-                    );
-                    _bloc.add(AddNote(notes: notes));
-                    _tEController.clear();
-                  }
-                },
-                onChanged: (value) {
-                  if(value.isNotEmpty) {
-                    setState(() {
-                      _hasText = true;
-                    });
-                  }
-                },
-                onEditingComplete: () {
-                  setState(() {
-                    _isAdding = false;
-                  });
-                },
               ),
-            )),
+            ),
           ],
         ),
       ),
       floatingActionButton: Visibility(
         visible: (!_isAdding),
         child: FloatingActionButton(
-            heroTag: "fab",
-            tooltip: 'Add New Note',
-            backgroundColor: Theme.of(context).primaryColor,
-            child: Icon(Icons.add),
-            onPressed: () {
-              setState(() {
+          heroTag: "fab",
+          tooltip: 'Add New Note',
+          child: Icon(Icons.add),
+          onPressed: () {
+            setState(
+              () {
                 _isAdding = true;
-              });
-            }
+              },
+            );
+          },
         ),
-      )
+      ),
     );
   }
-
 
   @override
   void dispose() {
@@ -148,34 +168,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin{
 
   Widget _notesLoadingWidget(BuildContext context) {
     return Container(
-        alignment: Alignment.center,
-        child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation(Colors.blue)
-        )
+      alignment: Alignment.center,
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(
+          Colors.blue,
+        ),
+      ),
     );
   }
 
   Widget _failureWidget(BuildContext context, NotesFailure state) {
     return Container(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.info_outline, color: Theme.of(context).primaryColor, size: 50.00),
-              SizedBox(height: 15.00),
-              Text(state.message, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 25.00)),
-            ],
-        ));
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.info_outline, color: Theme.of(context).primaryColor, size: 50.00),
+          SizedBox(height: 15.00),
+          Text(state.message, style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 25.00)),
+        ],
+      ),
+    );
   }
 
   Widget _circularProgressIndicator(BuildContext context) {
     return Container(
-        alignment: Alignment.center,
-        child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
-            strokeWidth: 2.00
-        )
+      alignment: Alignment.center,
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
+        strokeWidth: 2.00,
+      ),
     );
   }
-
 }

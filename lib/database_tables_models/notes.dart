@@ -28,8 +28,8 @@ class Notes {
   String title;
   String content;
   String favorite;
-  Color color;
-  int index;
+  // Color color;
+  // int index;
   String delAction;
 
 
@@ -41,7 +41,7 @@ class Notes {
 
   Notes.updateDelAction(this.id, this.delAction);
 
-  Notes.forView(this.id, this.title, this.content, this.dateTime, this.dateModified, this.index, this.color);
+  Notes.forView(this.id, this.title, this.content, this.dateTime, this.dateModified);
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();

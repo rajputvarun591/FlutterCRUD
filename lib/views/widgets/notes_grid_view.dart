@@ -6,6 +6,8 @@ import 'package:meta/meta.dart';
 import 'package:notes/database_tables_models/notes.dart';
 import 'package:notes/router/constants.dart';
 
+import 'date_widget.dart';
+
 class NotesGridView extends StatefulWidget {
   final NotesLoaded state;
 
@@ -15,156 +17,91 @@ class NotesGridView extends StatefulWidget {
   _NotesGridViewState createState() => _NotesGridViewState();
 }
 
-class _NotesGridViewState extends State<NotesGridView> with SingleTickerProviderStateMixin{
-
-  AnimationController _animationController;
-  Animation<Offset> _animation;
-
+class _NotesGridViewState extends State<NotesGridView> {
   ScrollController _scrollController;
 
   NotesBloc _bloc;
 
-
   @override
   void initState() {
-    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
-    _animation = Tween<Offset>(begin: Offset(0.0, 3.0), end: Offset.zero).animate(CurvedAnimation(parent: _animationController, curve: Curves.bounceInOut));
     super.initState();
     _scrollController = ScrollController()..addListener(_onScroll);
     _bloc = BlocProvider.of<NotesBloc>(context);
   }
 
-
   @override
   void dispose() {
-    _animationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final mediaQuery = MediaQuery.of(context).size;
     final theme = Theme.of(context);
 
-    return Container(
-        child: widget.state.notes.isEmpty ? _zeroNotesFound(context) : GridView.count(
-          padding: EdgeInsets.all(15.00),
-          physics: BouncingScrollPhysics(),
-          crossAxisCount: 2,
-          crossAxisSpacing: 15.00,
-          mainAxisSpacing: 15.00,
-          scrollDirection: Axis.vertical,
-          children: List.generate(widget.state.notes.length, (index) {
-            _animationController.forward();
-            return SlideTransition(
-              position: _animation,
-              transformHitTests: true,
-              child: Material(
-                animationDuration: Duration(seconds: 1),
-                color: index.isEven
-                    ? theme.primaryColorDark.withOpacity(0.5)
-                    : theme.primaryColorLight.withOpacity(0.5),
-                borderRadius: BorderRadius.all(Radius.circular(5.00)),
-                child: InkWell(
-                  borderRadius: BorderRadius.all(Radius.circular(5.00)),
-                  child: Stack(
+    if (widget.state.notes.isEmpty) {
+      return _zeroNotesFound(context);
+    } else {
+      return ListView.builder(
+        itemCount: widget.state.notes.length,
+        padding: const EdgeInsets.all(10.00),
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 5.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DateWidget(
+                  index: index,
+                  notes: widget.state.notes,
+                ),
+                ListTile(
+                  title: Hero(
+                    tag: widget.state.notes[index].id,
+                    transitionOnUserGestures: true,
+                    flightShuttleBuilder: (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
+                      return DefaultTextStyle(style: DefaultTextStyle.of(toHeroContext).style, child: toHeroContext.widget);
+                    },
+                    child: Text(
+                      "${widget.state.notes[index].title}",
+                      style: theme.textTheme.headline6.copyWith(fontSize: 17.00),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  subtitle: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: mediaQuery.width / 2.7,
-                        height: mediaQuery.height / 3,
-                        padding: EdgeInsets.all(10.00),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(5.00))),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                                child: Hero(
-                                    tag: widget.state.notes[index].id,
-                                    transitionOnUserGestures: true,
-                                    flightShuttleBuilder: (flightContext, animation, flightDirection, fromHeroContext, toHeroContext) {
-                                      return DefaultTextStyle(
-                                          style: DefaultTextStyle.of(toHeroContext).style,
-                                          child: toHeroContext.widget
-                                      );
-                                    },
-                                    child: Text(
-                                        "${widget.state.notes[index].title}",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20.00
-                                        ),
-                                        overflow: TextOverflow.ellipsis
-                                    )
-                                )
-                            ),
-                            const SizedBox(height: 5.00),
-                            Expanded(
-                                child: Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                        "${widget.state.notes[index].content}",
-                                        style: TextStyle(
-                                            color: Colors.blueGrey,
-                                            fontSize: 18.00
-                                        ),
-                                        overflow: TextOverflow.clip
-                                    )
-                                )
-                            ),
-                            const SizedBox(height: 5.00),
-                            Container(
-                                child: Text(
-                                  DateFormat("dd MMM hh:mm a").format(DateFormat("dd MMM yyyy hh:mm:ss:a").parse(widget.state.notes[index].dateModified)),
-                                  style: TextStyle(
-                                      color: Colors.blueGrey
-                                  ), overflow: TextOverflow.ellipsis,
-                                )
-                            ),
-                          ],
-                        ),
+                      Text(
+                        "${widget.state.notes[index].content}",
+                        style: theme.textTheme.headline6.copyWith(fontSize: 16.00),
+                        overflow: TextOverflow.clip,
+                        maxLines: 1,
                       ),
-                      Container(
-                        alignment: Alignment.topRight,
-                        child: IconButton(icon: widget.state.notes[index].favorite == "no" ? Icon( Icons.favorite_border, color: Colors.blueGrey) : Icon(Icons.favorite),  onPressed: () {
-                          Notes notes = Notes.updateFavoriteStatus(widget.state.notes[index].id, widget.state.notes[index].favorite == "no" ? "yes" : "no");
-                          _bloc.add(UpdateFavoriteStatus(notes: notes));
-                        }),
+                      Text(
+                        MaterialLocalizations.of(context).formatShortDate(DateTime.parse(widget.state.notes[index].dateModified)),
+                        style: theme.textTheme.headline6.copyWith(fontSize: 15.00),
+                        overflow: TextOverflow.ellipsis,
                       )
                     ],
                   ),
-                  onTap: () {
-                    Future.delayed(Duration(milliseconds: 200), () async{
-                      Notes notes = Notes.forView(
-                          widget.state.notes[index].id,
-                          widget.state.notes[index].title,
-                          widget.state.notes[index].content,
-                          widget.state.notes[index].dateTime,
-                          widget.state.notes[index].dateModified,
-                          index,
-                          index.isEven
-                              ? theme.primaryColorDark
-                              : theme.primaryColorLight);
-                      int result = await Navigator.pushNamed(context, RoutePaths.noteDetailsRoute, arguments: notes);
-                      if(result == 1) {
-                        Scaffold.of(context)..removeCurrentSnackBar()..showSnackBar(
-                            SnackBar(content: Text("Moved To Trash !"),
-                                duration: Duration(seconds: 3),
-                                backgroundColor: Colors.red)
-                        );
-                      }
-                    });
-                  },
-                  onDoubleTap: (){},
+                  trailing: IconButton(
+                      icon: widget.state.notes[index].favorite == "no"
+                          ? Icon(Icons.favorite_border)
+                          : Icon(Icons.favorite),
+                      onPressed: () {
+                        Notes notes =
+                            Notes.updateFavoriteStatus(widget.state.notes[index].id, widget.state.notes[index].favorite == "no" ? "yes" : "no");
+                        _bloc.add(UpdateFavoriteStatus(notes: notes));
+                      }),
+                  onTap: () => _onTap(widget.state.notes[index]),
                 ),
-              ),
-            );
-          }
-          ),
-        )
-    );
+              ],
+            ),
+          );
+        },
+      );
+    }
   }
 
   void _onScroll() {
@@ -181,12 +118,27 @@ class _NotesGridViewState extends State<NotesGridView> with SingleTickerProvider
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.style, color: Theme.of(context).primaryColor, size: 50.00),
+            Icon(Icons.style, size: 50.00),
             SizedBox(height: 15.00),
-            Text("Empty Notes! Add Some.", style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 25.00)),
+            Text("Empty Notes! Add Some.", style: Theme.of(context).textTheme.headline5),
           ],
-        )
-    );
+        ));
+  }
+
+  void _onTap(Notes not) async {
+    Notes notes = Notes.forView(not.id, not.title, not.content, not.dateTime, not.dateModified);
+    int result = await Navigator.pushNamed(context, RoutePaths.noteDetailsRoute, arguments: notes);
+    if (result == 1) {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text("Moved To Trash !"),
+            duration: Duration(seconds: 3),
+            backgroundColor: Colors.red,
+          ),
+        );
+    }
   }
 }
 

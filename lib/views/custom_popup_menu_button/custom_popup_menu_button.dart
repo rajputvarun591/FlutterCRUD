@@ -55,7 +55,6 @@ class _CustomPopupMenuButtonState extends State<CustomPopupMenuButton> {
       },
       initialValue: _value,
       elevation: 5.00,
-      color: Colors.white,
       padding: EdgeInsets.all(10.00),
       onSelected: (value) async{
         if(value == 1) {

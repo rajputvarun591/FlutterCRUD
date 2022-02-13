@@ -17,26 +17,36 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
-      MultiBlocProvider(
-          providers: [
-            BlocProvider<ThemeBloc>(
-              create: (context) =>
-              ThemeBloc(repository: ThemeRepositoryImpl())
-                ..add(ChangeTheme(themeName: ThemeEnum.RED)),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<ThemeBloc>(
+          create: (context) => ThemeBloc(repository: ThemeRepositoryImpl())
+            ..add(
+              ChangeTheme(themeName: ThemeEnum.BLUE),
             ),
-            BlocProvider<NotesBloc>(
-                create: (context) => NotesBloc(repository: NotesRepositoryImpl())
-                  ..add(ShowNotes(sortBy: Notes.columnDateModified, orderBy: Order.descending))
-            )
-          ],
-          child: MyApp()));
-  }
+        ),
+        BlocProvider<NotesBloc>(
+          create: (context) => NotesBloc(repository: NotesRepositoryImpl())
+            ..add(
+              ShowNotes(
+                sortBy: Notes.columnDateModified,
+                orderBy: Order.descending,
+              ),
+            ),
+        )
+      ],
+      child: MyApp(),
+    ),
+  );
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ThemeBloc, ThemesState>(builder: (context, state){
-      if(state is ThemeChanged) {
+    return BlocBuilder<ThemeBloc, ThemesState>(
+      cubit: BlocProvider.of<ThemeBloc>(context),
+        builder: (context, state) {
+      if (state is ThemeChanged) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'NotePad',
@@ -50,9 +60,13 @@ class MyApp extends StatelessWidget {
         color: Colors.pinkAccent,
         builder: (context, int) {
           return Scaffold(
-              body: Container(
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue))));
+            body: Container(
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Colors.blue),
+              ),
+            ),
+          );
         },
       );
     });
